@@ -30,6 +30,11 @@ lazy val interpreters =
     .in(file("02-interpreters"))
     .dependsOn(dsls)
     .settings(commonSettings: _*)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.typelevel" %% "cats-core" % "2.1.1"
+      )
+    )
 
 lazy val programs =
   project

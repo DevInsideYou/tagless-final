@@ -2,46 +2,63 @@ package devinsideyou
 package expressionproblem
 package `final`
 
+import cats._
+import cats.data._
+import cats.syntax.all._
+
 object Evaluate {
-  object Expression {
-    val dsl: Expression[Int] =
-      new Expression[Int] {
-        override def literal(n: Int): Option[Int] =
-          Some(n)
+  object Literal {
+    def dsl[F[_]: Applicative]: Literal[F, Int] =
+      new Literal[F, Int] {
+        override def literal(n: Int): F[Int] =
+          n.pure[F]
+      }
+  }
 
-        override def negate(a: Option[Int]): Option[Int] =
+  object Negation {
+    def dsl[F[_]: Functor]: Negation[F, Int] =
+      new Negation[F, Int] {
+        override def negate(a: F[Int]): F[Int] =
           a.map(-_)
+      }
+  }
 
-        override def add(a1: Option[Int], a2: Option[Int]): Option[Int] =
-          a1.zip(a2).map {
-            case (a1, a2) => a1 + a2
-          }
+  object Addition {
+    def dsl[F[_]: Apply: NonEmptyParallel]: Addition[F, Int] =
+      new Addition[F, Int] {
+        override def add(a1: F[Int], a2: F[Int]): F[Int] =
+          (a1, a2).parMapN(_ + _)
       }
   }
 
   object Multiplication {
-    val dsl: Multiplication[Int] =
-      new Multiplication[Int] {
-        override def multiply(a1: Option[Int], a2: Option[Int]): Option[Int] =
-          a1.zip(a2).map {
-            case (a1, a2) => a1 * a2
-          }
+    def dsl[F[_]: Apply: NonEmptyParallel]: Multiplication[F, Int] =
+      new Multiplication[F, Int] {
+        override def multiply(a1: F[Int], a2: F[Int]): F[Int] =
+          (a1, a2).parMapN(_ * _)
       }
   }
 
   object Division {
-    val dsl: Division[Int] =
-      new Division[Int] {
-        override def divide(a1: Option[Int], a2: Option[Int]): Option[Int] =
-          a1.zip(a2).flatMap {
+    def dsl[
+        F[_]: MonadError[*[_], NonEmptyChain[String]]: NonEmptyParallel
+      ]: Division[F, Int] =
+      new Division[F, Int] {
+        override def divide(a1: F[Int], a2: F[Int]): F[Int] =
+          (a1, a2).parTupled.flatMap {
             case (a1, 0) =>
-              None
+              "division by zero"
+                .pure[NonEmptyChain]
+                .raiseError[F, Int]
 
             case (a1, a2) =>
               if (a1 % a2 == 0)
-                Some(a1 / a2)
+                (a1 / a2)
+                  .pure[F]
               else
-                None
+                "division ended up having rest"
+                  .pure[NonEmptyChain]
+                  .raiseError[F, Int]
           }
       }
   }

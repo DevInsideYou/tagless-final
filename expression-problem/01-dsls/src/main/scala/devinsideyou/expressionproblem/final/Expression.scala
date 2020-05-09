@@ -2,16 +2,22 @@ package devinsideyou
 package expressionproblem
 package `final`
 
-trait Expression[A] {
-  def literal(n: Int): Option[A]
-  def negate(a: Option[A]): Option[A]
-  def add(a1: Option[A], a2: Option[A]): Option[A]
+trait Literal[F[_], A] {
+  def literal(n: Int): F[A]
 }
 
-trait Multiplication[A] {
-  def multiply(a1: Option[A], a2: Option[A]): Option[A]
+trait Negation[F[_], A] {
+  def negate(a: F[A]): F[A]
 }
 
-trait Division[A] {
-  def divide(a1: Option[A], a2: Option[A]): Option[A]
+trait Addition[F[_], A] {
+  def add(a1: F[A], a2: F[A]): F[A]
+}
+
+trait Multiplication[F[_], A] {
+  def multiply(a1: F[A], a2: F[A]): F[A]
+}
+
+trait Division[F[_], A] {
+  def divide(a1: F[A], a2: F[A]): F[A]
 }

@@ -2,49 +2,47 @@ package devinsideyou
 package expressionproblem
 package `final`
 
+import cats._
+import cats.syntax.all._
+
 object View {
-  object Expression {
-    val dsl: Expression[String] =
-      new Expression[String] {
-        override def literal(n: Int): Option[String] =
-          Some(s"${n}")
+  object Literal {
+    def dsl[F[_]: Applicative]: Literal[F, String] =
+      new Literal[F, String] {
+        override def literal(n: Int): F[String] =
+          s"${n}".pure[F]
+      }
+  }
 
-        override def negate(a: Option[String]): Option[String] =
+  object Negation {
+    def dsl[F[_]: Functor]: Negation[F, String] =
+      new Negation[F, String] {
+        override def negate(a: F[String]): F[String] =
           a.map(a => s"(-${a})")
+      }
+  }
 
-        override def add(
-            a1: Option[String],
-            a2: Option[String]
-          ): Option[String] =
-          a1.zip(a2).map {
-            case (a1, a2) => s"(${a1} + ${a2})"
-          }
+  object Addition {
+    def dsl[F[_]: Apply: NonEmptyParallel]: Addition[F, String] =
+      new Addition[F, String] {
+        override def add(a1: F[String], a2: F[String]): F[String] =
+          (a1, a2).parMapN((a1, a2) => s"(${a1} + ${a2})")
       }
   }
 
   object Multiplication {
-    val dsl: Multiplication[String] =
-      new Multiplication[String] {
-        override def multiply(
-            a1: Option[String],
-            a2: Option[String]
-          ): Option[String] =
-          a1.zip(a2).map {
-            case (a1, a2) => s"(${a1} * ${a2})"
-          }
+    def dsl[F[_]: Apply: NonEmptyParallel]: Multiplication[F, String] =
+      new Multiplication[F, String] {
+        override def multiply(a1: F[String], a2: F[String]): F[String] =
+          (a1, a2).parMapN((a1, a2) => s"(${a1} * ${a2})")
       }
   }
 
   object Division {
-    val dsl: Division[String] =
-      new Division[String] {
-        override def divide(
-            a1: Option[String],
-            a2: Option[String]
-          ): Option[String] =
-          a1.zip(a2).map {
-            case (a1, a2) => s"(${a1} / ${a2})"
-          }
+    def dsl[F[_]: Apply: NonEmptyParallel]: Division[F, String] =
+      new Division[F, String] {
+        override def divide(a1: F[String], a2: F[String]): F[String] =
+          (a1, a2).parMapN((a1, a2) => s"(${a1} / ${a2})")
       }
   }
 }

@@ -2,17 +2,22 @@ package devinsideyou
 package expressionproblem
 package `final`
 
-trait Program[A] {
-  def run: Option[A]
+trait Program[F[_], A] {
+  def run: F[A]
 }
 
 object Program {
   object Expression {
-    def dsl[A](implicit expression: Expression[A]): Program[A] =
-      new Program[A] {
-        import expression._
+    def dsl[F[_], A](
+        implicit
+        L: Literal[F, A],
+        N: Negation[F, A],
+        A: Addition[F, A]
+      ): Program[F, A] =
+      new Program[F, A] {
+        import L._, N._, A._
 
-        override val run: Option[A] =
+        override val run: F[A] =
           add(
             literal(16),
             negate(
@@ -26,16 +31,17 @@ object Program {
   }
 
   object Multiplication {
-    def dsl[A](
+    def dsl[F[_], A](
         implicit
-        expression: Expression[A],
-        multiplication: Multiplication[A]
-      ): Program[A] =
-      new Program[A] {
-        import expression._
-        import multiplication._
+        L: Literal[F, A],
+        N: Negation[F, A],
+        A: Addition[F, A],
+        M: Multiplication[F, A]
+      ): Program[F, A] =
+      new Program[F, A] {
+        import L._, M._
 
-        override val run: Option[A] =
+        override val run: F[A] =
           multiply(
             literal(2),
             Expression.dsl.run
@@ -44,16 +50,17 @@ object Program {
   }
 
   object MultiplicationInTheMiddle {
-    def dsl[A](
+    def dsl[F[_], A](
         implicit
-        expression: Expression[A],
-        multiplication: Multiplication[A]
-      ): Program[A] =
-      new Program[A] {
-        import expression._
-        import multiplication._
+        L: Literal[F, A],
+        N: Negation[F, A],
+        A: Addition[F, A],
+        M: Multiplication[F, A]
+      ): Program[F, A] =
+      new Program[F, A] {
+        import L._, N._, A._, M._
 
-        override val run: Option[A] =
+        override val run: F[A] =
           add(
             literal(16),
             negate(
@@ -70,18 +77,18 @@ object Program {
   }
 
   object Division {
-    def dsl[A](
+    def dsl[F[_], A](
         implicit
-        expression: Expression[A],
-        multiplication: Multiplication[A],
-        division: Division[A]
-      ): Program[A] =
-      new Program[A] {
-        import expression._
-        import multiplication._
-        import division._
+        L: Literal[F, A],
+        N: Negation[F, A],
+        A: Addition[F, A],
+        M: Multiplication[F, A],
+        D: Division[F, A]
+      ): Program[F, A] =
+      new Program[F, A] {
+        import L._, D._
 
-        override val run: Option[A] =
+        override val run: F[A] =
           divide(
             Multiplication.dsl.run,
             literal(2)
@@ -90,18 +97,18 @@ object Program {
   }
 
   object DivisionInTheMiddle {
-    def dsl[A](
+    def dsl[F[_], A](
         implicit
-        expression: Expression[A],
-        multiplication: Multiplication[A],
-        division: Division[A]
-      ): Program[A] =
-      new Program[A] {
-        import expression._
-        import multiplication._
-        import division._
+        L: Literal[F, A],
+        N: Negation[F, A],
+        A: Addition[F, A],
+        M: Multiplication[F, A],
+        D: Division[F, A]
+      ): Program[F, A] =
+      new Program[F, A] {
+        import L._, N._, A._, M._, D._
 
-        override val run: Option[A] =
+        override val run: F[A] =
           add(
             literal(16),
             negate(
@@ -115,6 +122,30 @@ object Program {
                 ),
                 literal(2)
               )
+            )
+          )
+      }
+  }
+
+  object DivisionWithTwoErrors {
+    def dsl[F[_], A](
+        implicit
+        L: Literal[F, A],
+        A: Addition[F, A],
+        D: Division[F, A]
+      ): Program[F, A] =
+      new Program[F, A] {
+        import L._, A._, D._
+
+        override val run: F[A] =
+          add(
+            divide(
+              literal(3),
+              literal(0)
+            ),
+            divide(
+              literal(3),
+              literal(5)
             )
           )
       }

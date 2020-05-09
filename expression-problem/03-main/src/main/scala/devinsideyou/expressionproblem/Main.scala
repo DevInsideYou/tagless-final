@@ -3,6 +3,10 @@ package expressionproblem
 
 import scala.util.chaining._
 
+import cats._
+import cats.data._
+import cats.instances.all._
+
 object Main extends App {
   println("─" * 100)
 
@@ -10,13 +14,21 @@ object Main extends App {
 
   Program
     .Expression
-    .dsl(Evaluate.Expression.dsl)
+    .dsl[Id, Int](
+      Evaluate.Literal.dsl,
+      Evaluate.Negation.dsl,
+      Evaluate.Addition.dsl
+    )
     .run
     .tap(println)
 
   Program
     .Expression
-    .dsl(View.Expression.dsl)
+    .dsl[Id, String](
+      View.Literal.dsl,
+      View.Negation.dsl,
+      View.Addition.dsl
+    )
     .run
     .tap(println)
 
@@ -24,13 +36,23 @@ object Main extends App {
 
   Program
     .Multiplication
-    .dsl(Evaluate.Expression.dsl, Evaluate.Multiplication.dsl)
+    .dsl[Id, Int](
+      Evaluate.Literal.dsl,
+      Evaluate.Negation.dsl,
+      Evaluate.Addition.dsl,
+      Evaluate.Multiplication.dsl
+    )
     .run
     .tap(println)
 
   Program
     .Multiplication
-    .dsl(View.Expression.dsl, View.Multiplication.dsl)
+    .dsl[Id, String](
+      View.Literal.dsl,
+      View.Negation.dsl,
+      View.Addition.dsl,
+      View.Multiplication.dsl
+    )
     .run
     .tap(println)
 
@@ -38,13 +60,23 @@ object Main extends App {
 
   Program
     .MultiplicationInTheMiddle
-    .dsl(Evaluate.Expression.dsl, Evaluate.Multiplication.dsl)
+    .dsl[Id, Int](
+      Evaluate.Literal.dsl,
+      Evaluate.Negation.dsl,
+      Evaluate.Addition.dsl,
+      Evaluate.Multiplication.dsl
+    )
     .run
     .tap(println)
 
   Program
     .MultiplicationInTheMiddle
-    .dsl(View.Expression.dsl, View.Multiplication.dsl)
+    .dsl[Id, String](
+      View.Literal.dsl,
+      View.Negation.dsl,
+      View.Addition.dsl,
+      View.Multiplication.dsl
+    )
     .run
     .tap(println)
 
@@ -52,8 +84,10 @@ object Main extends App {
 
   Program
     .Division
-    .dsl(
-      Evaluate.Expression.dsl,
+    .dsl[EitherNec[String, *], Int](
+      Evaluate.Literal.dsl,
+      Evaluate.Negation.dsl,
+      Evaluate.Addition.dsl,
       Evaluate.Multiplication.dsl,
       Evaluate.Division.dsl
     )
@@ -62,7 +96,13 @@ object Main extends App {
 
   Program
     .Division
-    .dsl(View.Expression.dsl, View.Multiplication.dsl, View.Division.dsl)
+    .dsl[Id, String](
+      View.Literal.dsl,
+      View.Negation.dsl,
+      View.Addition.dsl,
+      View.Multiplication.dsl,
+      View.Division.dsl
+    )
     .run
     .tap(println)
 
@@ -70,8 +110,10 @@ object Main extends App {
 
   Program
     .DivisionInTheMiddle
-    .dsl(
-      Evaluate.Expression.dsl,
+    .dsl[EitherNec[String, *], Int](
+      Evaluate.Literal.dsl,
+      Evaluate.Negation.dsl,
+      Evaluate.Addition.dsl,
       Evaluate.Multiplication.dsl,
       Evaluate.Division.dsl
     )
@@ -80,7 +122,35 @@ object Main extends App {
 
   Program
     .DivisionInTheMiddle
-    .dsl(View.Expression.dsl, View.Multiplication.dsl, View.Division.dsl)
+    .dsl[Id, String](
+      View.Literal.dsl,
+      View.Negation.dsl,
+      View.Addition.dsl,
+      View.Multiplication.dsl,
+      View.Division.dsl
+    )
+    .run
+    .tap(println)
+
+  println("─" * 100)
+
+  Program
+    .DivisionWithTwoErrors
+    .dsl[EitherNec[String, *], Int](
+      Evaluate.Literal.dsl,
+      Evaluate.Addition.dsl,
+      Evaluate.Division.dsl
+    )
+    .run
+    .tap(println)
+
+  Program
+    .DivisionWithTwoErrors
+    .dsl[Id, String](
+      View.Literal.dsl,
+      View.Addition.dsl,
+      View.Division.dsl
+    )
     .run
     .tap(println)
 
