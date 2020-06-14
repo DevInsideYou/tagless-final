@@ -11,6 +11,11 @@ object Dependencies {
   }
 
   case object org {
+    case object augustjune {
+      val `context-applied` =
+        "org.augustjune" %% "context-applied" % "0.1.4"
+    }
+
     case object scalacheck {
       val scalacheck =
         "org.scalacheck" %% "scalacheck" % "1.14.3"
@@ -18,15 +23,18 @@ object Dependencies {
 
     case object scalatest {
       val scalatest =
-        "org.scalatest" %% "scalatest" % "3.1.1"
+        "org.scalatest" %% "scalatest" % "3.1.2"
     }
 
     case object scalatestplus {
-      val `scalatestplus-scalacheck` =
-        "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2"
+      val `scalacheck-1-14` =
+        "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0"
     }
 
     case object typelevel {
+      val `discipline-scalatest` =
+        "org.typelevel" %% "discipline-scalatest" % "1.0.1"
+
       val `kind-projector` =
         "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full
     }

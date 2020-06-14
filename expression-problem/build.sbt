@@ -50,6 +50,7 @@ lazy val main =
     .settings(commonSettings: _*)
 
 lazy val commonSettings = Seq(
+  addCompilerPlugin(org.augustjune.`context-applied`),
   addCompilerPlugin(org.typelevel.`kind-projector`),
   Compile / console / scalacOptions --= Seq(
     "-Wunused:_",

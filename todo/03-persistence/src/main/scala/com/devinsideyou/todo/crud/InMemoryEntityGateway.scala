@@ -34,7 +34,9 @@ object InMemoryEntityGateway {
       override def readManyById(ids: Vector[String]): Vector[Todo.Existing] =
         state.filter(todo => ids.contains(todo.id))
 
-      override def readManyByPartialDescription(partialDescription: String): Vector[Todo.Existing] =
+      override def readManyByPartialDescription(
+          partialDescription: String
+        ): Vector[Todo.Existing] =
         state.filter(
           _.description
             .toLowerCase

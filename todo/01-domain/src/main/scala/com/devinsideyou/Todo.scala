@@ -32,7 +32,8 @@ case object Todo {
       copy(data = data.withUpdatedDeadline(newDeadline))
   }
 
-  final case class Data(description: String, deadline: LocalDateTime) extends Todo {
+  final case class Data(description: String, deadline: LocalDateTime)
+      extends Todo {
     override protected type ThisType = Data
 
     override def withUpdatedDescription(newDescription: String): ThisType =

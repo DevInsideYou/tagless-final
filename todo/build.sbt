@@ -40,7 +40,8 @@ lazy val core =
         com.github.alexarchambault.`scalacheck-shapeless_1.14`,
         org.scalacheck.scalacheck,
         org.scalatest.scalatest,
-        org.scalatestplus.`scalatestplus-scalacheck`
+        org.scalatestplus.`scalacheck-1-14`,
+        org.typelevel.`discipline-scalatest`
       ).map(_ % Test)
     )
 
@@ -64,6 +65,7 @@ lazy val main =
     .settings(commonSettings: _*)
 
 lazy val commonSettings = Seq(
+  addCompilerPlugin(org.augustjune.`context-applied`),
   addCompilerPlugin(org.typelevel.`kind-projector`),
   Compile / console / scalacOptions --= Seq(
     "-Wunused:_",

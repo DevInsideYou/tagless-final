@@ -8,7 +8,9 @@ trait Boundary {
 
   def readOneById(id: String): Option[Todo.Existing]
   def readManyById(ids: Vector[String]): Vector[Todo.Existing]
-  def readManyByPartialDescription(partialDescription: String): Vector[Todo.Existing]
+  def readManyByPartialDescription(
+      partialDescription: String
+    ): Vector[Todo.Existing]
   def readAll: Vector[Todo.Existing]
 
   def updateOne(todo: Todo.Existing): Todo.Existing
@@ -28,7 +30,9 @@ object Boundary {
       override def createMany(todos: Vector[Todo.Data]): Vector[Todo.Existing] =
         writeMany(todos)
 
-      private def writeMany[T <: Todo](todos: Vector[T]): Vector[Todo.Existing] =
+      private def writeMany[T <: Todo](
+          todos: Vector[T]
+        ): Vector[Todo.Existing] =
         gateway.writeMany(
           todos.map(todo => todo.withUpdatedDescription(todo.description.trim))
         )
@@ -39,7 +43,9 @@ object Boundary {
       override def readManyById(ids: Vector[String]): Vector[Todo.Existing] =
         gateway.readManyById(ids)
 
-      override def readManyByPartialDescription(partialDescription: String): Vector[Todo.Existing] =
+      override def readManyByPartialDescription(
+          partialDescription: String
+        ): Vector[Todo.Existing] =
         if (partialDescription.isEmpty)
           Vector.empty
         else
@@ -51,7 +57,9 @@ object Boundary {
       override def updateOne(todo: Todo.Existing): Todo.Existing =
         updateMany(Vector(todo)).head
 
-      override def updateMany(todos: Vector[Todo.Existing]): Vector[Todo.Existing] =
+      override def updateMany(
+          todos: Vector[Todo.Existing]
+        ): Vector[Todo.Existing] =
         writeMany(todos)
 
       override def deleteOne(todo: Todo.Existing): Unit =

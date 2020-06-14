@@ -5,6 +5,8 @@ package crud
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import scala.util.Try
+
 trait Controller {
   def run(): Unit
 }
@@ -57,20 +59,27 @@ object Controller {
         def prompt: String =
           fancyConsole.getStrLnTrimmedWithPrompt(menu)
 
+        object Exit {
+          def unapply(s: String): Boolean =
+            Set("e", "q", "exit", "quit")(s)
+        }
+
         @scala.annotation.tailrec
         def loop(shouldKeepLooping: Boolean): Unit =
           if (shouldKeepLooping)
-            prompt match {
-              case "c"                         => create(); loop(true)
-              case "d"                         => delete(); loop(true)
-              case "da"                        => deleteAll(); loop(true)
-              case "sa"                        => showAll(); loop(true)
-              case "sd"                        => searchByPartialDescription(); loop(true)
-              case "sid"                       => searchById(); loop(true)
-              case "ud"                        => updateDescription(); loop(true)
-              case "udl"                       => updateDeadline(); loop(true)
-              case "e" | "q" | "exit" | "quit" => exit(); loop(false)
-              case _                           => loop(true)
+            loop {
+              prompt match {
+                case "c"    => create(); true
+                case "d"    => delete(); true
+                case "da"   => deleteAll(); true
+                case "sa"   => showAll(); true
+                case "sd"   => searchByPartialDescription(); true
+                case "sid"  => searchById(); true
+                case "ud"   => updateDescription(); true
+                case "udl"  => updateDeadline(); true
+                case Exit() => exit(); false
+                case _      => true
+              }
             }
 
         loop(shouldKeepLooping = true)
@@ -84,7 +93,9 @@ object Controller {
           withDeadlinePrompt { deadline =>
             boundary
               .createOne(Todo.Data(description, deadline))
-              .tapAs(fancyConsole.putSuccess("Successfully created the new todo."))
+              .tapAs(
+                fancyConsole.putSuccess("Successfully created the new todo.")
+              )
           }
         }
 
@@ -99,16 +110,19 @@ object Controller {
           case Left(error)     => fancyConsole.putError(error)
         }
 
-      private def toLocalDateTime(input: String): Either[String, LocalDateTime] = {
+      private def toLocalDateTime(
+          input: String
+        ): Either[String, LocalDateTime] = {
         val formatter = DateTimeFormatter.ofPattern(DeadlinePromptPattern)
 
-        scala
-          .util
-          .Try(LocalDateTime.parse(input, formatter))
+        Try(LocalDateTime.parse(input, formatter))
           .toEither
           .left
           .map { _ =>
-            s"\n${inColor(input)(scala.Console.YELLOW)} does not match the required format $DeadlinePromptFormat.${scala.Console.RESET}"
+            val renderedInput: String =
+              inColor(input)(scala.Console.YELLOW)
+
+            s"\n$renderedInput does not match the required format $DeadlinePromptFormat.${scala.Console.RESET}"
           }
       }
 
@@ -144,7 +158,11 @@ object Controller {
           .deleteAll
           .tapAs(fancyConsole.putSuccess("Successfully deleted all todos."))
 
-      private def withReadOne(id: String)(onFound: Todo.Existing => Unit): Unit =
+      private def withReadOne(
+          id: String
+        )(
+          onFound: Todo.Existing => Unit
+        ): Unit =
         boundary
           .readOneById(id)
           .pipe {
@@ -178,13 +196,13 @@ object Controller {
         fancyConsole.putWarning("\nNo todos found!")
 
       private def renderedWithPattern(todo: Todo.Existing): String = {
-        def renderedId: String =
+        val renderedId: String =
           inColor(todo.id.toString)(scala.Console.GREEN)
 
-        def renderedDescription: String =
+        val renderedDescription: String =
           inColor(todo.description)(scala.Console.MAGENTA)
 
-        def renderedDeadline: String =
+        val renderedDeadline: String =
           inColor(todo.deadline.format(pattern))(scala.Console.YELLOW)
 
         s"$renderedId $renderedDescription is due on $renderedDeadline."
@@ -209,7 +227,10 @@ object Controller {
             descriptionPrompt.pipe { description =>
               boundary
                 .updateOne(todo.withUpdatedDescription(description))
-                .tapAs(fancyConsole.putSuccess("Successfully updated the description."))
+                .tapAs(
+                  fancyConsole
+                    .putSuccess("Successfully updated the description.")
+                )
             }
           }
         }
@@ -220,7 +241,9 @@ object Controller {
             withDeadlinePrompt { deadline =>
               boundary
                 .updateOne(todo.withUpdatedDeadline(deadline))
-                .tapAs(fancyConsole.putSuccess("Successfully updated the deadline."))
+                .tapAs(
+                  fancyConsole.putSuccess("Successfully updated the deadline.")
+                )
             }
           }
         }
