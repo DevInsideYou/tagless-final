@@ -2,73 +2,80 @@ package com.devinsideyou
 package todo
 package crud
 
-trait Boundary {
-  def createOne(todo: Todo.Data): Todo.Existing
-  def createMany(todos: Vector[Todo.Data]): Vector[Todo.Existing]
+import cats._
+import cats.implicits._
 
-  def readOneById(id: String): Option[Todo.Existing]
-  def readManyById(ids: Vector[String]): Vector[Todo.Existing]
+trait Boundary[F[_]] {
+  def createOne(todo: Todo.Data): F[Todo.Existing]
+  def createMany(todos: Vector[Todo.Data]): F[Vector[Todo.Existing]]
+
+  def readOneById(id: String): F[Option[Todo.Existing]]
+  def readManyById(ids: Vector[String]): F[Vector[Todo.Existing]]
   def readManyByPartialDescription(
       partialDescription: String
-    ): Vector[Todo.Existing]
-  def readAll: Vector[Todo.Existing]
+    ): F[Vector[Todo.Existing]]
+  def readAll: F[Vector[Todo.Existing]]
 
-  def updateOne(todo: Todo.Existing): Todo.Existing
-  def updateMany(todos: Vector[Todo.Existing]): Vector[Todo.Existing]
+  def updateOne(todo: Todo.Existing): F[Todo.Existing]
+  def updateMany(todos: Vector[Todo.Existing]): F[Vector[Todo.Existing]]
 
-  def deleteOne(todo: Todo.Existing): Unit
-  def deleteMany(todos: Vector[Todo.Existing]): Unit
-  def deleteAll: Unit
+  def deleteOne(todo: Todo.Existing): F[Unit]
+  def deleteMany(todos: Vector[Todo.Existing]): F[Unit]
+  def deleteAll: F[Unit]
 }
 
 object Boundary {
-  def dsl(gateway: EntityGateway): Boundary =
-    new Boundary {
-      override def createOne(todo: Todo.Data): Todo.Existing =
-        createMany(Vector(todo)).head
+  def dsl[F[_]: Applicative](
+      gateway: EntityGateway[F]
+    ): Boundary[F] =
+    new Boundary[F] {
+      override def createOne(todo: Todo.Data): F[Todo.Existing] =
+        createMany(Vector(todo)).map(_.head)
 
-      override def createMany(todos: Vector[Todo.Data]): Vector[Todo.Existing] =
+      override def createMany(
+          todos: Vector[Todo.Data]
+        ): F[Vector[Todo.Existing]] =
         writeMany(todos)
 
       private def writeMany[T <: Todo](
           todos: Vector[T]
-        ): Vector[Todo.Existing] =
+        ): F[Vector[Todo.Existing]] =
         gateway.writeMany(
           todos.map(todo => todo.withUpdatedDescription(todo.description.trim))
         )
 
-      override def readOneById(id: String): Option[Todo.Existing] =
-        readManyById(Vector(id)).headOption
+      override def readOneById(id: String): F[Option[Todo.Existing]] =
+        readManyById(Vector(id)).map(_.headOption)
 
-      override def readManyById(ids: Vector[String]): Vector[Todo.Existing] =
+      override def readManyById(ids: Vector[String]): F[Vector[Todo.Existing]] =
         gateway.readManyById(ids)
 
       override def readManyByPartialDescription(
           partialDescription: String
-        ): Vector[Todo.Existing] =
+        ): F[Vector[Todo.Existing]] =
         if (partialDescription.isEmpty)
-          Vector.empty
+          Vector.empty.pure[F]
         else
           gateway.readManyByPartialDescription(partialDescription.trim)
 
-      override def readAll: Vector[Todo.Existing] =
+      override val readAll: F[Vector[Todo.Existing]] =
         gateway.readAll
 
-      override def updateOne(todo: Todo.Existing): Todo.Existing =
-        updateMany(Vector(todo)).head
+      override def updateOne(todo: Todo.Existing): F[Todo.Existing] =
+        updateMany(Vector(todo)).map(_.head)
 
       override def updateMany(
           todos: Vector[Todo.Existing]
-        ): Vector[Todo.Existing] =
+        ): F[Vector[Todo.Existing]] =
         writeMany(todos)
 
-      override def deleteOne(todo: Todo.Existing): Unit =
+      override def deleteOne(todo: Todo.Existing): F[Unit] =
         deleteMany(Vector(todo))
 
-      override def deleteMany(todos: Vector[Todo.Existing]): Unit =
+      override def deleteMany(todos: Vector[Todo.Existing]): F[Unit] =
         gateway.deleteMany(todos)
 
-      override def deleteAll: Unit =
+      override val deleteAll: F[Unit] =
         gateway.deleteAll
     }
 }

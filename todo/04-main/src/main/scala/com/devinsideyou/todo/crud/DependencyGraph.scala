@@ -13,7 +13,7 @@ object DependencyGraph {
     ): Controller =
     Controller.dsl(
       pattern = pattern,
-      boundary = Boundary.dsl(
+      boundary = BoundaryOld.dsl(
         gateway = InMemoryEntityGateway.dsl
       )
     )

@@ -3,11 +3,11 @@ package todo
 package crud
 
 object InMemoryEntityGateway {
-  val dsl: EntityGateway = {
+  val dsl: EntityGatewayOld = {
     var nextId: Int = 0
     var state: Vector[Todo.Existing] = Vector.empty
 
-    new EntityGateway {
+    new EntityGatewayOld {
       override def writeMany(todos: Vector[Todo]): Vector[Todo.Existing] =
         todos.map(writeOne)
 
