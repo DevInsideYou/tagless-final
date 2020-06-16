@@ -2,61 +2,72 @@ package com.devinsideyou
 package todo
 package crud
 
+import cats._
+import cats.implicits._
+
 object InMemoryEntityGateway {
-  val dsl: EntityGatewayOld = {
-    var nextId: Int = 0
-    var state: Vector[Todo.Existing] = Vector.empty
+  def dsl[F[_]: effect.Sync]: EntityGateway[F] =
+    new EntityGateway[F] {
+      var nextId: Int = 0
+      var state: Vector[Todo.Existing] = Vector.empty
 
-    new EntityGatewayOld {
-      override def writeMany(todos: Vector[Todo]): Vector[Todo.Existing] =
-        todos.map(writeOne)
+      override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] =
+        todos.traverse(writeOne)
 
-      private def writeOne(todo: Todo): Todo.Existing =
+      private def writeOne(todo: Todo): F[Todo.Existing] =
         todo match {
           case item: Todo.Data     => createOne(item)
           case item: Todo.Existing => updateOne(item)
         }
 
-      private def createOne(todo: Todo.Data): Todo.Existing = {
-        val created =
-          Todo.Existing(
-            id = nextId.toString,
-            data = todo
-          )
+      private def createOne(todo: Todo.Data): F[Todo.Existing] =
+        F.delay {
+          val created =
+            Todo.Existing(
+              id = nextId.toString,
+              data = todo
+            )
 
-        state :+= created
+          state :+= created
 
-        nextId += 1
+          nextId += 1
 
-        created
-      }
+          created
+        }
 
-      override def readManyById(ids: Vector[String]): Vector[Todo.Existing] =
-        state.filter(todo => ids.contains(todo.id))
+      private def updateOne(todo: Todo.Existing): F[Todo.Existing] =
+        F.delay {
+            state = state.filterNot(_.id === todo.id) :+ todo
+          }
+          .as(todo)
+
+      override def readManyById(
+          ids: Vector[String]
+        ): F[Vector[Todo.Existing]] =
+        F.delay(state.filter(todo => ids.contains(todo.id)))
 
       override def readManyByPartialDescription(
           partialDescription: String
-        ): Vector[Todo.Existing] =
-        state.filter(
-          _.description
-            .toLowerCase
-            .contains(partialDescription.toLowerCase)
+        ): F[Vector[Todo.Existing]] =
+        F.delay(
+          state.filter(
+            _.description
+              .toLowerCase
+              .contains(partialDescription.toLowerCase)
+          )
         )
 
-      override def readAll: Vector[Todo.Existing] =
-        state
+      override val readAll: F[Vector[Todo.Existing]] =
+        F.delay(state)
 
-      private def updateOne(todo: Todo.Existing): Todo.Existing = {
-        state = state.filterNot(_.id == todo.id) :+ todo
+      override def deleteMany(todos: Vector[Todo.Existing]): F[Unit] =
+        F.delay {
+          state = state.filterNot(todo => todos.map(_.id).contains(todo.id))
+        }
 
-        todo
-      }
-
-      override def deleteMany(todos: Vector[Todo.Existing]): Unit =
-        state = state.filterNot(todo => todos.map(_.id).contains(todo.id))
-
-      override def deleteAll: Unit =
-        state = Vector.empty
+      override val deleteAll: F[Unit] =
+        F.delay {
+          state = Vector.empty
+        }
     }
-  }
 }
