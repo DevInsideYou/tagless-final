@@ -1,14 +1,16 @@
 package com.devinsideyou
 package todo
 
-trait Random {
-  def nextInt(n: Int): Int
+import cats._
+
+trait Random[F[_]] {
+  def nextInt(n: Int): F[Int]
 }
 
 object Random {
-  implicit val dsl: Random =
-    new Random {
-      override def nextInt(n: Int): Int =
-        scala.util.Random.nextInt(n)
+  implicit def dsl[F[_]: effect.Sync]: Random[F] =
+    new Random[F] {
+      override def nextInt(n: Int): F[Int] =
+        F.delay(scala.util.Random.nextInt(n))
     }
 }

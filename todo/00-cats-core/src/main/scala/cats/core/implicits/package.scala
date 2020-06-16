@@ -14,6 +14,23 @@ package object implicits {
       F.map(fa)(_ => ())
   }
 
+  final implicit class FlatMapOps[F[_]: FlatMap, A](
+      private val fa: F[A]
+    ) {
+    @inline def flatMap[B](afb: A => F[B]): F[B] =
+      F.flatMap(fa)(afb)
+
+    @inline def >>[B](fb: => F[B]): F[B] =
+      F.flatMap(fa)(_ => fb)
+  }
+
+  final implicit class MonadOps[F[_]: Monad, A](
+      private val fa: F[A]
+    ) {
+    @inline def iterateWhile(p: A => Boolean): F[A] =
+      F.iterateWhile(fa)(p)
+  }
+
   final implicit class SequenceOps[F[_]: Traverse, G[_]: Applicative, A](
       private val fga: F[G[A]]
     ) {
