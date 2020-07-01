@@ -170,7 +170,7 @@ object ControllerOld {
           .readOneById(id)
           .pipe {
             case Some(todo) => onFound(todo)
-            case None       => displayNoTodosFoundMessage
+            case None       => displayNoTodosFoundMessage()
           }
 
       private def showAll(): Unit =
@@ -178,7 +178,7 @@ object ControllerOld {
 
       private def displayZeroOrMany(todos: Vector[Todo.Existing]): Unit =
         if (todos.isEmpty)
-          displayNoTodosFoundMessage
+          displayNoTodosFoundMessage()
         else {
           val uxMatters = if (todos.size == 1) "todo" else "todos"
 

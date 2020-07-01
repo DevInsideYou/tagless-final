@@ -37,9 +37,8 @@ object InMemoryEntityGateway {
 
       private def updateOne(todo: Todo.Existing): F[Todo.Existing] =
         F.delay {
-            state = state.filterNot(_.id === todo.id) :+ todo
-          }
-          .as(todo)
+          state = state.filterNot(_.id === todo.id) :+ todo
+        }.as(todo)
 
       override def readManyById(
           ids: Vector[String]

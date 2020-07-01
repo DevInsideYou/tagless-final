@@ -15,7 +15,7 @@ object Console {
   implicit def dsl[F[_]: effect.Sync]: Console[F] =
     new Console[F] {
       override val getStrLn: F[String] =
-        F.delay(scala.io.StdIn.readLine)
+        F.delay(scala.io.StdIn.readLine())
 
       override def getStrLnWithPrompt(prompt: String): F[String] =
         F.delay(scala.io.StdIn.readLine(prompt))
