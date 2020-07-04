@@ -5,11 +5,15 @@ package crud
 import cats._
 import cats.implicits._
 
+import cats.effect.concurrent.Ref
+
 object InMemoryEntityGateway {
-  def dsl[F[_]: effect.Sync]: EntityGateway[F] =
+  def dsl[F[_]: Monad](
+      state: Ref[F, Vector[Todo.Existing]]
+    ): EntityGateway[F] =
     new EntityGateway[F] {
-      val statement: Statement[F] =
-        Statement.dsl
+      private val statement: Statement[F] =
+        Statement.dsl(state)
 
       override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] =
         todos.traverse {

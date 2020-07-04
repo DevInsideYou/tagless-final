@@ -4,23 +4,16 @@ package todo
 import java.time.format.DateTimeFormatter
 
 import cats._
+import cats.implicits._
 
 object Program {
-  def dsl[F[_]: effect.Sync]: F[Unit] = {
-    val crudController: crud.Controller[F] =
-      crud
-        .DependencyGraph
-        .dsl(Pattern, Console.dsl, Random.dsl)
-
-    val program: F[Unit] =
-      crudController.program
-
-    println(
-      s"[${scala.Console.YELLOW}warn${scala.Console.RESET}] Any output before this line is a bug!"
-    )
-
-    program
-  }
+  def dsl[F[_]: effect.Sync]: F[Unit] =
+    for {
+      console <- Console.dsl
+      random <- Random.dsl
+      controller <- crud.DependencyGraph.dsl(Pattern, console, random)
+      _ <- controller.program
+    } yield ()
 
   private val Pattern =
     DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy HH:mm")

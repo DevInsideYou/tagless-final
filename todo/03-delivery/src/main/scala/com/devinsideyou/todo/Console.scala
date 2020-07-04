@@ -12,18 +12,20 @@ trait Console[F[_]] {
 }
 
 object Console {
-  def dsl[F[_]: effect.Sync]: Console[F] =
-    new Console[F] {
-      override val getStrLn: F[String] =
-        F.delay(scala.io.StdIn.readLine())
+  def dsl[F[_]: effect.Sync]: F[Console[F]] =
+    F.delay {
+      new Console[F] {
+        override val getStrLn: F[String] =
+          F.delay(scala.io.StdIn.readLine())
 
-      override def getStrLnWithPrompt(prompt: String): F[String] =
-        F.delay(scala.io.StdIn.readLine(prompt))
+        override def getStrLnWithPrompt(prompt: String): F[String] =
+          F.delay(scala.io.StdIn.readLine(prompt))
 
-      override def putStrLn(line: String): F[Unit] =
-        F.delay(println(line))
+        override def putStrLn(line: String): F[Unit] =
+          F.delay(println(line))
 
-      override def putErrLn(line: String): F[Unit] =
-        F.delay(scala.Console.err.println(line))
+        override def putErrLn(line: String): F[Unit] =
+          F.delay(scala.Console.err.println(line))
+      }
     }
 }

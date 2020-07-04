@@ -8,6 +8,28 @@ object Dependencies {
           "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
       }
     }
+
+    case object olegpy {
+      val `better-monadic-for` =
+        "com.olegpy" %% "better-monadic-for" % "0.3.1"
+    }
+  }
+
+  case object dev {
+    case object zio {
+      val zio =
+        "dev.zio" %% "zio" % "1.0.0-RC21-2"
+
+      val `zio-interop-cats` =
+        "dev.zio" %% "zio-interop-cats" % "2.1.3.0-RC16"
+    }
+  }
+
+  case object io {
+    case object monix {
+      val `monix-eval` =
+        "io.monix" %% "monix-eval" % "3.2.2"
+    }
   }
 
   case object org {
@@ -32,6 +54,12 @@ object Dependencies {
     }
 
     case object typelevel {
+      val `cats-core` =
+        "org.typelevel" %% "cats-core" % "2.1.1"
+
+      val `cats-effect` =
+        "org.typelevel" %% "cats-effect" % "2.1.3"
+
       val `discipline-scalatest` =
         "org.typelevel" %% "discipline-scalatest" % "1.0.1"
 

@@ -5,6 +5,8 @@ package crud
 import cats._
 import cats.implicits._
 
+import cats.effect.concurrent.Ref
+
 trait Statement[F[_]] {
   def insertOne(data: Todo.Data): F[Todo.Existing]
   def updateOne(todo: Todo.Existing): F[Todo.Existing]
@@ -14,36 +16,32 @@ trait Statement[F[_]] {
 }
 
 object Statement {
-  def dsl[F[_]: effect.Sync]: Statement[F] =
+  def dsl[F[_]: Functor: FlatMap](
+      state: Ref[F, Vector[Todo.Existing]]
+    ): Statement[F] =
     new Statement[F] {
-      var state: Vector[Todo.Existing] = Vector.empty
-
       override val selectAll: F[Vector[Todo.Existing]] =
-        F.delay(state)
+        state.get
 
       private val nextId: F[String] =
-        F.delay(state.size.toString)
+        selectAll.map(_.size.toString)
 
       override def insertOne(data: Todo.Data): F[Todo.Existing] =
         nextId
           .map(Todo.Existing(_, data))
           .flatMap { created =>
-            F.delay(state :+= created).as(created)
+            state.modify(s => (s :+ created) -> created)
           }
 
       override def updateOne(todo: Todo.Existing): F[Todo.Existing] =
-        F.delay {
-          state = state.filterNot(_.id === todo.id) :+ todo
-        }.as(todo)
+        state.modify { s =>
+          (s.filterNot(_.id === todo.id) :+ todo) -> todo
+        }
 
       override def deleteMany(todos: Vector[Todo.Existing]): F[Unit] =
-        F.delay {
-          state = state.filterNot(todo => todos.map(_.id).contains(todo.id))
-        }
+        state.update(_.filterNot(todo => todos.map(_.id).contains(todo.id)))
 
       override val deleteAll: F[Unit] =
-        F.delay {
-          state = Vector.empty
-        }
+        state.set(Vector.empty)
     }
 }

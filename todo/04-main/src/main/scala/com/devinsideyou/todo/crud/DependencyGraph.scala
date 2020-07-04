@@ -5,19 +5,24 @@ package crud
 import java.time.format.DateTimeFormatter
 
 import cats._
+import cats.implicits._
+
+import cats.effect.concurrent.Ref
 
 object DependencyGraph {
   def dsl[F[_]: effect.Sync](
       pattern: DateTimeFormatter,
       console: Console[F],
       random: Random[F]
-    ): Controller[F] =
-    Controller.dsl(
-      pattern = pattern,
-      boundary = Boundary.dsl(
-        gateway = InMemoryEntityGateway.dsl
-      ),
-      console = FancyConsole.dsl(console),
-      random = random
-    )
+    ): F[Controller[F]] =
+    Ref.of(Vector.empty[Todo.Existing]).map { state =>
+      Controller.dsl(
+        pattern = pattern,
+        boundary = Boundary.dsl(
+          gateway = InMemoryEntityGateway.dsl(state)
+        ),
+        console = FancyConsole.dsl(console),
+        random = random
+      )
+    }
 }

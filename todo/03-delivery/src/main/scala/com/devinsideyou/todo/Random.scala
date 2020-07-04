@@ -8,9 +8,11 @@ trait Random[F[_]] {
 }
 
 object Random {
-  def dsl[F[_]: effect.Sync]: Random[F] =
-    new Random[F] {
-      override def nextInt(n: Int): F[Int] =
-        F.delay(scala.util.Random.nextInt(n))
+  def dsl[F[_]: effect.Sync]: F[Random[F]] =
+    F.delay {
+      new Random[F] {
+        override def nextInt(n: Int): F[Int] =
+          F.delay(scala.util.Random.nextInt(n))
+      }
     }
 }
