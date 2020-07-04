@@ -12,7 +12,7 @@ trait Console[F[_]] {
 }
 
 object Console {
-  implicit def dsl[F[_]: effect.Sync]: Console[F] =
+  def dsl[F[_]: effect.Sync]: Console[F] =
     new Console[F] {
       override val getStrLn: F[String] =
         F.delay(scala.io.StdIn.readLine())

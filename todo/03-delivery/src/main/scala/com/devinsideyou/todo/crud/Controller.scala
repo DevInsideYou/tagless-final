@@ -11,16 +11,18 @@ import cats.implicits._
 import scala.util.Try
 
 trait Controller[F[_]] {
-  def run: F[Unit]
+  def program: F[Unit]
 }
 
 object Controller {
-  def dsl[F[_]: FancyConsole: Random: Monad](
+  def dsl[F[_]: Monad](
+      pattern: DateTimeFormatter,
       boundary: Boundary[F],
-      pattern: DateTimeFormatter
+      console: FancyConsole[F],
+      random: Random[F]
     ): Controller[F] =
     new Controller[F] {
-      override val run: F[Unit] = {
+      override val program: F[Unit] = {
         val colors: Vector[String] =
           Vector(
             // scala.Console.BLACK,
@@ -34,7 +36,7 @@ object Controller {
           )
 
         val randomColor: F[String] =
-          F.nextInt(colors.size).map(colors)
+          random.nextInt(colors.size).map(colors)
 
         val hyphens: F[String] =
           randomColor.map(inColor("─" * 100))
@@ -59,7 +61,7 @@ object Controller {
           }
 
         val prompt: F[String] =
-          menu.flatMap(F.getStrLnTrimmedWithPrompt)
+          menu.flatMap(console.getStrLnTrimmedWithPrompt)
 
         object Exit {
           def unapply(s: String): Boolean =
@@ -84,13 +86,13 @@ object Controller {
       }
 
       private val descriptionPrompt: F[String] =
-        F.getStrLnTrimmedWithPrompt("Please enter a description:")
+        console.getStrLnTrimmedWithPrompt("Please enter a description:")
 
       private val create: F[Unit] =
         descriptionPrompt.flatMap { description =>
           withDeadlinePrompt { deadline =>
             boundary.createOne(Todo.Data(description, deadline)) >>
-              F.putSuccess("Successfully created the new todo.")
+              console.putSuccess("Successfully created the new todo.")
           }
         }
 
@@ -99,11 +101,11 @@ object Controller {
         ): F[Unit] =
         deadlinePrompt.map(toLocalDateTime).flatMap {
           case Right(deadline) => onSuccess(deadline)
-          case Left(error)     => F.putError(error)
+          case Left(error)     => console.putError(error)
         }
 
       private val deadlinePrompt: F[String] =
-        F.getStrLnTrimmedWithPrompt(
+        console.getStrLnTrimmedWithPrompt(
           s"Please enter a deadline in the following format $DeadlinePromptFormat:"
         )
 
@@ -125,21 +127,21 @@ object Controller {
           }
       }
 
+      private val idPrompt: F[String] =
+        console.getStrLnTrimmedWithPrompt("Please enter the id:")
+
       private val delete: F[Unit] =
         withIdPrompt { id =>
           withReadOne(id) { todo =>
             boundary.deleteOne(todo) >>
-              F.putSuccess("Successfully deleted the todo.")
+              console.putSuccess("Successfully deleted the todo.")
           }
         }
-
-      private val idPrompt: F[String] =
-        F.getStrLnTrimmedWithPrompt("Please enter the id:")
 
       private def withIdPrompt(onValidId: String => F[Unit]): F[Unit] =
         idPrompt.map(toId).flatMap {
           case Right(id)   => onValidId(id)
-          case Left(error) => F.putError(error)
+          case Left(error) => console.putError(error)
         }
 
       private def toId(userInput: String): Either[String, String] =
@@ -163,11 +165,11 @@ object Controller {
           }
 
       private val displayNoTodosFoundMessage: F[Unit] =
-        F.putWarning("\nNo todos found!")
+        console.putWarning("\nNo todos found!")
 
       private val deleteAll: F[Unit] =
         boundary.deleteAll >>
-          F.putSuccess("Successfully deleted all todos.")
+          console.putSuccess("Successfully deleted all todos.")
 
       private val showAll: F[Unit] =
         boundary.readAll.flatMap(displayZeroOrMany)
@@ -181,11 +183,11 @@ object Controller {
           val renderedSize: String =
             inColor(todos.size.toString)(scala.Console.GREEN)
 
-          F.putStrLn(s"\nFound $renderedSize $uxMatters:\n") >>
+          console.putStrLn(s"\nFound $renderedSize $uxMatters:\n") >>
             todos
               .sortBy(_.deadline)
               .map(renderedWithPattern)
-              .traverse(F.putStrLn)
+              .traverse(console.putStrLn)
               .void
         }
 
@@ -220,7 +222,7 @@ object Controller {
           withReadOne(id) { todo =>
             descriptionPrompt.flatMap { description =>
               boundary.updateOne(todo.withUpdatedDescription(description)) >>
-                F.putSuccess("Successfully updated the description.")
+                console.putSuccess("Successfully updated the description.")
             }
           }
         }
@@ -230,13 +232,13 @@ object Controller {
           withReadOne(id) { todo =>
             withDeadlinePrompt { deadline =>
               boundary.updateOne(todo.withUpdatedDeadline(deadline)) >>
-                F.putSuccess("Successfully updated the deadline.")
+                console.putSuccess("Successfully updated the deadline.")
             }
           }
         }
 
       private val exit: F[Unit] =
-        F.putStrLn("\nUntil next time!\n")
+        console.putStrLn("\nUntil next time!\n")
     }
 
   private val DeadlinePromptPattern: String =

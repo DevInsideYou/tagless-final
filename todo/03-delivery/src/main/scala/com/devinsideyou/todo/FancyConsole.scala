@@ -15,19 +15,19 @@ trait FancyConsole[F[_]] {
 }
 
 object FancyConsole {
-  implicit def dsl[F[_]: Console: Functor]: FancyConsole[F] =
+  def dsl[F[_]: Functor](console: Console[F]): FancyConsole[F] =
     new FancyConsole[F] {
       override val getStrLnTrimmed: F[String] =
-        F.getStrLn.map(_.trim)
+        console.getStrLn.map(_.trim)
 
       override def getStrLnTrimmedWithPrompt(prompt: String): F[String] =
-        F.getStrLnWithPrompt(prompt + " ").map(_.trim)
+        console.getStrLnWithPrompt(prompt + " ").map(_.trim)
 
       override def putStrLn(line: String): F[Unit] =
-        F.putStrLn(line)
+        console.putStrLn(line)
 
       override def putStrLnInColor(line: String)(color: String): F[Unit] =
-        F.putStrLn(inColor(line)(color))
+        console.putStrLn(inColor(line)(color))
 
       private def inColor(line: String)(color: String): String =
         color + line + scala.Console.RESET
