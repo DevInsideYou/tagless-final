@@ -20,25 +20,12 @@ lazy val `todo` =
   project
     .in(file("."))
     .aggregate(
-      `cats-core`,
-      `cats-effect`,
       domain,
       core,
       delivery,
       persistence,
       main
     )
-
-lazy val `cats-core` =
-  project
-    .in(file("00-cats-core"))
-    .settings(commonSettings: _*)
-
-lazy val `cats-effect` =
-  project
-    .in(file("00-cats-effect"))
-    .dependsOn(`cats-core` % Cctt)
-    .settings(commonSettings: _*)
 
 lazy val domain =
   project
@@ -48,7 +35,6 @@ lazy val domain =
 lazy val core =
   project
     .in(file("02-core"))
-    // .dependsOn(`cats-core` % Cctt)
     .dependsOn(domain % Cctt)
     .settings(commonSettings: _*)
     .settings(
@@ -68,7 +54,6 @@ lazy val delivery =
   project
     .in(file("03-delivery"))
     .dependsOn(core % Cctt)
-    // .dependsOn(`cats-effect` % Cctt)
     .settings(commonSettings: _*)
     .settings(
       libraryDependencies ++= Seq(
@@ -80,7 +65,6 @@ lazy val persistence =
   project
     .in(file("03-persistence"))
     .dependsOn(core % Cctt)
-    // .dependsOn(`cats-effect` % Cctt)
     .settings(commonSettings: _*)
     .settings(
       libraryDependencies ++= Seq(
