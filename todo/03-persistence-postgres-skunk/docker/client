@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker exec -it db psql -h localhost -U user -d tagless-final-todo

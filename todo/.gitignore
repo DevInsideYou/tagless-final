@@ -5,3 +5,4 @@
 *.worksheet.sc
 metals.sbt
 target/
+!*.sql

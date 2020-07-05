@@ -1,0 +1,21 @@
+version: "3.8"
+
+networks:
+  backend:
+    name: backend
+
+services:
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tagless-final-todo
+    ports:
+      - 5432:5432
+    volumes:
+      - ./seed.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend

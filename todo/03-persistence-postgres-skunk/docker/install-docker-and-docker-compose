@@ -1,0 +1,9 @@
+#!/bin/bash
+
+wget -q https://script.install.devinsideyou.com/docker-compose
+sudo chmod +x docker-compose && ./docker-compose
+
+echo
+
+wget -q https://script.install.devinsideyou.com/docker
+sudo chmod +x docker && ./docker
