@@ -53,6 +53,11 @@ object Dependencies {
         "org.scalatestplus" %% "scalacheck-1-14" % "3.2.0.0"
     }
 
+    case object tpolecat {
+      val `skunk-core` =
+        "org.tpolecat" %% "skunk-core" % "0.0.11"
+    }
+
     case object typelevel {
       val `cats-core` =
         "org.typelevel" %% "cats-core" % "2.1.1"
