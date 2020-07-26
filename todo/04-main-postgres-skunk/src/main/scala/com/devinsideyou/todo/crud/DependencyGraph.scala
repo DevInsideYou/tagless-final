@@ -7,8 +7,6 @@ import java.time.format.DateTimeFormatter
 import cats._
 import cats.implicits._
 
-import cats.effect.concurrent.Ref
-
 object DependencyGraph {
   def dsl[F[_]: effect.Sync](
       pattern: DateTimeFormatter,

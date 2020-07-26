@@ -18,10 +18,10 @@ object Dependencies {
   case object dev {
     case object zio {
       val zio =
-        "dev.zio" %% "zio" % "1.0.0-RC21-2"
+        "dev.zio" %% "zio" % "1.0.0"
 
       val `zio-interop-cats` =
-        "dev.zio" %% "zio-interop-cats" % "2.1.3.0-RC16"
+        "dev.zio" %% "zio-interop-cats" % "2.1.4.0"
     }
   }
 
@@ -45,17 +45,17 @@ object Dependencies {
 
     case object scalatest {
       val scalatest =
-        "org.scalatest" %% "scalatest" % "3.2.0"
+        "org.scalatest" %% "scalatest" % "3.2.1"
     }
 
     case object scalatestplus {
       val `scalacheck-1-14` =
-        "org.scalatestplus" %% "scalacheck-1-14" % "3.2.0.0"
+        "org.scalatestplus" %% "scalacheck-1-14" % "3.2.1.0"
     }
 
     case object tpolecat {
       val `skunk-core` =
-        "org.tpolecat" %% "skunk-core" % "0.0.11"
+        "org.tpolecat" %% "skunk-core" % "0.0.15"
     }
 
     case object typelevel {
@@ -63,10 +63,10 @@ object Dependencies {
         "org.typelevel" %% "cats-core" % "2.1.1"
 
       val `cats-effect` =
-        "org.typelevel" %% "cats-effect" % "2.1.3"
+        "org.typelevel" %% "cats-effect" % "2.1.4"
 
       val `discipline-scalatest` =
-        "org.typelevel" %% "discipline-scalatest" % "1.0.1"
+        "org.typelevel" %% "discipline-scalatest" % "2.0.0"
 
       val `kind-projector` =
         "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full

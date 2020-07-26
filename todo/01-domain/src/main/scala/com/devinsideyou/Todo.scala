@@ -1,7 +1,6 @@
 package com.devinsideyou
 
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 sealed abstract class Todo extends Product with Serializable {
   protected type ThisType <: Todo
