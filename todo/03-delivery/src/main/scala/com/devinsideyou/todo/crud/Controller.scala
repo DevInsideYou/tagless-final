@@ -8,8 +8,6 @@ import java.time.format.DateTimeFormatter
 import cats._
 import cats.implicits._
 
-import scala.util.Try
-
 trait Controller[F[_]] {
   def program: F[Unit]
 }
@@ -74,7 +72,7 @@ object Controller {
             case "d"    => delete.as(true)
             case "da"   => deleteAll.as(true)
             case "sa"   => showAll.as(true)
-            case "sd"   => searchByPartialDescription.as(true)
+            case "sd"   => searchByDescription.as(true)
             case "sid"  => searchById.as(true)
             case "ud"   => updateDescription.as(true)
             case "udl"  => updateDeadline.as(true)
@@ -116,12 +114,14 @@ object Controller {
           DateTimeFormatter
             .ofPattern(DeadlinePromptPattern)
 
-        Try(LocalDateTime.parse(input, formatter))
-          .toEither
-          .left
-          .map { _ =>
+        val trimmedInput: String =
+          input.trim
+
+        Either
+          .catchNonFatal(LocalDateTime.parse(trimmedInput, formatter))
+          .leftMap { _ =>
             val renderedInput: String =
-              inColor(input)(scala.Console.YELLOW)
+              inColor(trimmedInput)(scala.Console.YELLOW)
 
             s"\n$renderedInput does not match the required format $DeadlinePromptFormat.${scala.Console.RESET}"
           }
@@ -204,7 +204,7 @@ object Controller {
         s"$renderedId $renderedDescription is due on $renderedDeadline."
       }
 
-      private val searchByPartialDescription: F[Unit] =
+      private val searchByDescription: F[Unit] =
         descriptionPrompt
           .flatMap(boundary.readManyByPartialDescription)
           .flatMap(displayZeroOrMany)

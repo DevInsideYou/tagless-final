@@ -1,7 +1,75 @@
 ### This file requires the REST Client VS Code extension
 ### https://marketplace.visualstudio.com/items?itemName=humao.rest-client
 
-@endpoint = http://localhost:8080/todos
+@endpoint = http://localhost:8080/api/todos
 
 ### Show all
 GET {{endpoint}}
+
+### Create
+POST {{endpoint}}
+
+{
+  "description": "   buy milk   ",
+  "deadline": "   2020-8-28 22:30   "
+}
+
+### Create (with errors)
+POST {{endpoint}}
+
+{
+  "description": "   write script   ",
+  "deadline": "   2020-8-27 22:30   "
+}
+
+### Update (description)
+PUT {{endpoint}}/7c69bf6d-51b8-494c-a9d1-3c0a6195792a
+
+{
+  "description": "   update script   "
+}
+
+### Update (deadline)
+PUT {{endpoint}}/7c69bf6d-51b8-494c-a9d1-3c0a6195792a
+
+{
+  "deadline": "   2020-9-27 17:35   "
+}
+
+### Update (all fields)
+PUT {{endpoint}}/7c69bf6d-51b8-494c-a9d1-3c0a6195792a
+
+{
+  "description": "   update script   ",
+  "deadline": "   2020-8-25 17:35   "
+}
+
+### Seach by id (no todos found)
+GET {{endpoint}}/0fd02eb6-1378-4b38-be71-a51bf550394f
+
+### Seach by id (invalid)
+GET {{endpoint}}/0fd02eb6-1378- 4b38-be71-a51bf550394f
+
+### Seach by id (blows up)
+GET {{endpoint}}/bla
+
+### Seach by id (the one that works)
+GET {{endpoint}}/7e2e07f7-b25a-4248-befa-2d5dacd1af66
+
+### Seach by description
+GET {{endpoint}}?description=script
+
+### Delete all
+DELETE {{endpoint}}
+
+### Delete (no todos found)
+DELETE {{endpoint}}/0fd02eb6-1378-4b38-be71-a51bf550394f
+
+### Delete (invalid)
+DELETE {{endpoint}}/0fd02eb6-1378- 4b38-be71-a51bf550394f
+
+### Delete (blows up)
+DELETE {{endpoint}}/bla
+
+### Delete (the one that works)
+DELETE {{endpoint}}/0fd02eb6-1378-4b38-be71-a51bf550394e

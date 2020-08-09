@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent._
 
 import cats._
-import cats.data._
 import cats.implicits._
 
 import cats.effect._
@@ -20,9 +19,7 @@ object Program {
         controller <- crud.DependencyGraph.dsl(Pattern, resource)
         server <- Server.dsl(executionContext) {
           HttpApp.dsl(
-            NonEmptyChain(
-              controller.routes
-            )
+            controller
           )
         }
         _ <- server.serve
