@@ -6,3 +6,4 @@
 metals.sbt
 target/
 !*.sql
+!*.http

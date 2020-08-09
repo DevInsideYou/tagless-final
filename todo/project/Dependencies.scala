@@ -26,6 +26,14 @@ object Dependencies {
   }
 
   case object io {
+    case object circe {
+      val `circe-generic` =
+        dependency("generic")
+
+      private def dependency(artifact: String): ModuleID =
+        "io.circe" %% s"circe-$artifact" % "0.13.0"
+    }
+
     case object monix {
       val `monix-eval` =
         "io.monix" %% "monix-eval" % "3.2.2"
@@ -36,6 +44,20 @@ object Dependencies {
     case object augustjune {
       val `context-applied` =
         "org.augustjune" %% "context-applied" % "0.1.4"
+    }
+
+    case object http4s {
+      val `http4s-blaze-server` =
+        dependency("blaze-server")
+
+      val `http4s-dsl` =
+        dependency("dsl")
+
+      val `http4s-circe` =
+        dependency("circe")
+
+      private def dependency(artifact: String): ModuleID =
+        "org.http4s" %% s"http4s-$artifact" % "0.21.7"
     }
 
     case object scalacheck {
@@ -51,6 +73,11 @@ object Dependencies {
     case object scalatestplus {
       val `scalacheck-1-14` =
         "org.scalatestplus" %% "scalacheck-1-14" % "3.2.1.0"
+    }
+
+    case object slf4j {
+      val `slf4j-simple` =
+        "org.slf4j" % "slf4j-simple" % "1.7.30"
     }
 
     case object tpolecat {

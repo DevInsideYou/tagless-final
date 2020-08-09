@@ -1,0 +1,7 @@
+### This file requires the REST Client VS Code extension
+### https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+@endpoint = http://localhost:8080/todos
+
+### Show all
+GET {{endpoint}}
