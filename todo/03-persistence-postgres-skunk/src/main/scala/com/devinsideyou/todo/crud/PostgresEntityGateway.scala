@@ -13,22 +13,25 @@ object PostgresEntityGateway {
       new EntityGateway[F] {
         override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] =
           todos.traverse {
-            case insert: Todo.Data =>
-              resource.use { session =>
-                session
-                  .prepare(Statement.Insert.one)
-                  .use { preparedQuery =>
-                    preparedQuery.unique(insert)
-                  }
-              }
+            case data: Todo.Data     => insertOne(data)
+            case todo: Todo.Existing => updateOne(todo)
+          }
 
-            case update: Todo.Existing =>
-              resource.use { session =>
-                session
-                  .prepare(Statement.Update.one)
-                  .use { preparedQuery =>
-                    preparedQuery.unique(update)
-                  }
+        private def insertOne(data: Todo.Data): F[Todo.Existing] =
+          resource.use { session =>
+            session
+              .prepare(Statement.Insert.one)
+              .use { preparedQuery =>
+                preparedQuery.unique(data)
+              }
+          }
+
+        private def updateOne(todo: Todo.Existing): F[Todo.Existing] =
+          resource.use { session =>
+            session
+              .prepare(Statement.Update.one)
+              .use { preparedQuery =>
+                preparedQuery.unique(todo)
               }
           }
 

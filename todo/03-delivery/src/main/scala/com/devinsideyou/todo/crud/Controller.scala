@@ -99,7 +99,7 @@ object Controller {
         ): F[Unit] =
         deadlinePrompt.map(toLocalDateTime).flatMap {
           case Right(deadline) => onSuccess(deadline)
-          case Left(error)     => console.putError(error)
+          case Left(error)     => console.putErrLn(error)
         }
 
       private val deadlinePrompt: F[String] =
@@ -141,7 +141,7 @@ object Controller {
       private def withIdPrompt(onValidId: String => F[Unit]): F[Unit] =
         idPrompt.map(toId).flatMap {
           case Right(id)   => onValidId(id)
-          case Left(error) => console.putError(error)
+          case Left(error) => console.putErrLn(error)
         }
 
       private def toId(userInput: String): Either[String, String] =

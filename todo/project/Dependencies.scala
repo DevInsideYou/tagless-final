@@ -18,7 +18,7 @@ object Dependencies {
   case object dev {
     case object zio {
       val zio =
-        "dev.zio" %% "zio" % "1.0.0"
+        "dev.zio" %% "zio" % "1.0.1"
 
       val `zio-interop-cats` =
         "dev.zio" %% "zio-interop-cats" % "2.1.4.0"
@@ -50,11 +50,11 @@ object Dependencies {
       val `http4s-blaze-server` =
         dependency("blaze-server")
 
-      val `http4s-dsl` =
-        dependency("dsl")
-
       val `http4s-circe` =
         dependency("circe")
+
+      val `http4s-dsl` =
+        dependency("dsl")
 
       private def dependency(artifact: String): ModuleID =
         "org.http4s" %% s"http4s-$artifact" % "0.21.7"
@@ -67,12 +67,12 @@ object Dependencies {
 
     case object scalatest {
       val scalatest =
-        "org.scalatest" %% "scalatest" % "3.2.1"
+        "org.scalatest" %% "scalatest" % "3.2.2"
     }
 
     case object scalatestplus {
       val `scalacheck-1-14` =
-        "org.scalatestplus" %% "scalacheck-1-14" % "3.2.1.0"
+        "org.scalatestplus" %% "scalacheck-1-14" % "3.2.2.0"
     }
 
     case object slf4j {
@@ -82,7 +82,7 @@ object Dependencies {
 
     case object tpolecat {
       val `skunk-core` =
-        "org.tpolecat" %% "skunk-core" % "0.0.15"
+        "org.tpolecat" %% "skunk-core" % "0.0.18"
     }
 
     case object typelevel {
@@ -93,7 +93,7 @@ object Dependencies {
         "org.typelevel" %% "cats-effect" % "2.1.4"
 
       val `discipline-scalatest` =
-        "org.typelevel" %% "discipline-scalatest" % "2.0.0"
+        "org.typelevel" %% "discipline-scalatest" % "2.0.1"
 
       val `kind-projector` =
         "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full

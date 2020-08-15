@@ -14,7 +14,7 @@ sealed abstract class Todo extends Product with Serializable {
   def withUpdatedDeadline(newDeadline: LocalDateTime): ThisType
 }
 
-case object Todo {
+object Todo {
   final case class Existing(id: String, data: Data) extends Todo {
     override protected type ThisType = Existing
 
