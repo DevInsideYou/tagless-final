@@ -37,11 +37,19 @@ PUT {{endpoint}}/7c69bf6d-51b8-494c-a9d1-3c0a6195792a
 }
 
 ### Update (all fields)
-PUT {{endpoint}}/7c69bf6d-51b8-494c-a9d1-3c0a6195792a
+PUT {{endpoint}}/d1a8b0c9-1248-40c6-8f4d-6594a408780b
 
 {
   "description": "   update script   ",
   "deadline": "   2020-8-25 17:35   "
+}
+
+### Update (all fields (parallel error handling))
+PUT {{endpoint}}/bla
+
+{
+  "description": "   update script   ",
+  "deadline": "   2020-8-25h 17:35   "
 }
 
 ### Seach by id (no todos found)

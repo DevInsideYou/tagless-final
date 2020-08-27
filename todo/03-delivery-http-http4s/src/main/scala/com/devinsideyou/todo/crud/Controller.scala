@@ -124,20 +124,31 @@ object Controller {
             description: String,
             deadline: String
           ): F[Response[F]] =
-          withIdPrompt(id) { id =>
-            withDeadlinePrompt(deadline) { deadline =>
-              withReadOne(id) { todo =>
-                boundary
-                  .updateOne(
-                    todo
-                      .withUpdatedDescription(description)
-                      .withUpdatedDeadline(deadline)
-                  )
-                  .map(response.Todo(pattern))
-                  .map(_.asJson)
-                  .flatMap(Ok(_))
-              }
-            }
+          (
+            toId(id).toEitherNec,
+            toLocalDateTime(deadline).toEitherNec
+          ).parTupled
+            .fold(
+              _.asJson.pipe(BadRequest(_)),
+              Function.tupled(happyPath(description))
+            )
+
+        private def happyPath(
+            description: String
+          )(
+            id: TodoId,
+            deadline: LocalDateTime
+          ): F[Response[F]] =
+          withReadOne(id) { todo =>
+            boundary
+              .updateOne(
+                todo
+                  .withUpdatedDescription(description)
+                  .withUpdatedDeadline(deadline)
+              )
+              .map(response.Todo(pattern))
+              .map(_.asJson)
+              .flatMap(Ok(_))
           }
 
         private val showAll: F[Response[F]] =
