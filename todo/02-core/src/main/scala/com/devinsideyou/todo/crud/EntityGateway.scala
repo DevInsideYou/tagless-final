@@ -2,15 +2,15 @@ package com.devinsideyou
 package todo
 package crud
 
-trait EntityGateway[F[_]] {
-  def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]]
+trait EntityGateway[F[_], TodoId] {
+  def writeMany(todos: Vector[Todo[TodoId]]): F[Vector[Todo.Existing[TodoId]]]
 
-  def readManyById(ids: Vector[String]): F[Vector[Todo.Existing]]
+  def readManyById(ids: Vector[TodoId]): F[Vector[Todo.Existing[TodoId]]]
   def readManyByPartialDescription(
       partialDescription: String
-    ): F[Vector[Todo.Existing]]
-  def readAll: F[Vector[Todo.Existing]]
+    ): F[Vector[Todo.Existing[TodoId]]]
+  def readAll: F[Vector[Todo.Existing[TodoId]]]
 
-  def deleteMany(todos: Vector[Todo.Existing]): F[Unit]
+  def deleteMany(todos: Vector[Todo.Existing[TodoId]]): F[Unit]
   def deleteAll: F[Unit]
 }

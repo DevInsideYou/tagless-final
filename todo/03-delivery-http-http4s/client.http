@@ -23,7 +23,7 @@ POST {{endpoint}}
 }
 
 ### Update (description)
-PUT {{endpoint}}/7c69bf6d-51b8-494c-a9d1-3c0a6195792a
+PUT {{endpoint}}/bla
 
 {
   "description": "   update script   "

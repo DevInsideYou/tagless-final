@@ -2,22 +2,26 @@ package com.devinsideyou
 package todo
 package crud
 
+import java.util.UUID
+
 import cats._
 import cats.implicits._
 
 object PostgresEntityGateway {
   def dsl[F[_]: effect.Sync](
       resource: effect.Resource[F, skunk.Session[F]]
-    ): F[EntityGateway[F]] =
+    ): F[EntityGateway[F, UUID]] =
     F.delay {
-      new EntityGateway[F] {
-        override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] =
+      new EntityGateway[F, UUID] {
+        override def writeMany(
+            todos: Vector[Todo[UUID]]
+          ): F[Vector[Todo.Existing[UUID]]] =
           todos.traverse {
-            case data: Todo.Data     => insertOne(data)
-            case todo: Todo.Existing => updateOne(todo)
+            case data: Todo.Data           => insertOne(data)
+            case todo: Todo.Existing[UUID] => updateOne(todo)
           }
 
-        private def insertOne(data: Todo.Data): F[Todo.Existing] =
+        private def insertOne(data: Todo.Data): F[Todo.Existing[UUID]] =
           resource.use { session =>
             session
               .prepare(Statement.Insert.one)
@@ -26,7 +30,9 @@ object PostgresEntityGateway {
               }
           }
 
-        private def updateOne(todo: Todo.Existing): F[Todo.Existing] =
+        private def updateOne(
+            todo: Todo.Existing[UUID]
+          ): F[Todo.Existing[UUID]] =
           resource.use { session =>
             session
               .prepare(Statement.Update.one)
@@ -36,8 +42,8 @@ object PostgresEntityGateway {
           }
 
         override def readManyById(
-            ids: Vector[String]
-          ): F[Vector[Todo.Existing]] =
+            ids: Vector[UUID]
+          ): F[Vector[Todo.Existing[UUID]]] =
           resource.use { session =>
             session
               .prepare(Statement.Select.many(ids.size))
@@ -51,7 +57,7 @@ object PostgresEntityGateway {
 
         override def readManyByPartialDescription(
             partialDescription: String
-          ): F[Vector[Todo.Existing]] =
+          ): F[Vector[Todo.Existing[UUID]]] =
           resource.use { session =>
             session
               .prepare(Statement.Select.byDescription)
@@ -63,14 +69,14 @@ object PostgresEntityGateway {
               }
           }
 
-        override val readAll: F[Vector[Todo.Existing]] =
+        override val readAll: F[Vector[Todo.Existing[UUID]]] =
           resource.use { session =>
             session
               .execute(Statement.Select.all)
               .map(_.to(Vector))
           }
 
-        override def deleteMany(todos: Vector[Todo.Existing]): F[Unit] =
+        override def deleteMany(todos: Vector[Todo.Existing[UUID]]): F[Unit] =
           resource.use { session =>
             session
               .prepare(Statement.Delete.many(todos.size))

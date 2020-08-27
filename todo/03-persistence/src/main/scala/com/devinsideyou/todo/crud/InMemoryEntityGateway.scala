@@ -9,28 +9,30 @@ import cats.effect.concurrent.Ref
 
 object InMemoryEntityGateway {
   def dsl[F[_]: Monad](
-      state: Ref[F, Vector[Todo.Existing]]
-    ): EntityGateway[F] =
-    new EntityGateway[F] {
+      state: Ref[F, Vector[Todo.Existing[Int]]]
+    ): EntityGateway[F, Int] =
+    new EntityGateway[F, Int] {
       private val statement: Statement[F] =
         Statement.dsl(state)
 
-      override def writeMany(todos: Vector[Todo]): F[Vector[Todo.Existing]] =
+      override def writeMany(
+          todos: Vector[Todo[Int]]
+        ): F[Vector[Todo.Existing[Int]]] =
         todos.traverse {
-          case insert: Todo.Data     => statement.insertOne(insert)
-          case update: Todo.Existing => statement.updateOne(update)
+          case insert: Todo.Data          => statement.insertOne(insert)
+          case update: Todo.Existing[Int] => statement.updateOne(update)
         }
 
       override def readManyById(
-          ids: Vector[String]
-        ): F[Vector[Todo.Existing]] =
+          ids: Vector[Int]
+        ): F[Vector[Todo.Existing[Int]]] =
         statement
           .selectAll
           .map(_.filter(todo => ids.contains(todo.id)))
 
       override def readManyByPartialDescription(
           partialDescription: String
-        ): F[Vector[Todo.Existing]] =
+        ): F[Vector[Todo.Existing[Int]]] =
         statement
           .selectAll
           .map {
@@ -41,10 +43,10 @@ object InMemoryEntityGateway {
             )
           }
 
-      override val readAll: F[Vector[Todo.Existing]] =
+      override val readAll: F[Vector[Todo.Existing[Int]]] =
         statement.selectAll
 
-      override def deleteMany(todos: Vector[Todo.Existing]): F[Unit] =
+      override def deleteMany(todos: Vector[Todo.Existing[Int]]): F[Unit] =
         statement.deleteMany(todos)
 
       override val deleteAll: F[Unit] =
