@@ -5,6 +5,18 @@ import java.time.LocalDateTime
 sealed abstract class Todo[+TodoId] extends Product with Serializable {
   protected type ThisType <: Todo[TodoId]
 
+  import Todo._
+
+  final def fold[B](
+      ifExisting: (TodoId, Data) => B
+    )(
+      ifData: (String, LocalDateTime) => B
+    ): B =
+    this match {
+      case Existing(id, data)          => ifExisting(id, data)
+      case Data(description, deadline) => ifData(description, deadline)
+    }
+
   def description: String
 
   def withUpdatedDescription(newDescription: String): ThisType

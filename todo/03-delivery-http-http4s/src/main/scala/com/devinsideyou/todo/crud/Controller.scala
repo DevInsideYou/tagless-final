@@ -64,10 +64,7 @@ object Controller {
           )(
             onSuccess: LocalDateTime => F[Response[F]]
           ): F[Response[F]] =
-          deadline.pipe(toLocalDateTime) match {
-            case Right(deadline) => onSuccess(deadline)
-            case Left(error)     => BadRequest(error)
-          }
+          toLocalDateTime(deadline).fold(BadRequest(_), onSuccess)
 
         private def toLocalDateTime(
             input: String
@@ -86,27 +83,18 @@ object Controller {
             }
         }
 
-        private def update(
-            id: String
-          ): request.Todo.Update => F[Response[F]] = {
-          case payload: request.Todo.Update.Description =>
-            updateDescription(id, payload)
-
-          case payload: request.Todo.Update.Deadline =>
-            updateDeadline(id, payload)
-
-          case payload: request.Todo.Update.AllFields =>
-            updateAllFields(id, payload)
-        }
+        private def update(id: String): request.Todo.Update => F[Response[F]] =
+          _.fold(updateDescription(id), updateDeadline(id), updateAllFields(id))
 
         private def updateDescription(
-            id: String,
-            payload: request.Todo.Update.Description
+            id: String
+          )(
+            description: String
           ): F[Response[F]] =
           withIdPrompt(id) { id =>
             withReadOne(id) { todo =>
               boundary
-                .updateOne(todo.withUpdatedDescription(payload.description))
+                .updateOne(todo.withUpdatedDescription(description))
                 .map(response.Todo(pattern))
                 .map(_.asJson)
                 .flatMap(Ok(_))
@@ -114,11 +102,12 @@ object Controller {
           }
 
         private def updateDeadline(
-            id: String,
-            payload: request.Todo.Update.Deadline
+            id: String
+          )(
+            deadline: String
           ): F[Response[F]] =
           withIdPrompt(id) { id =>
-            withDeadlinePrompt(payload.deadline) { deadline =>
+            withDeadlinePrompt(deadline) { deadline =>
               withReadOne(id) { todo =>
                 boundary
                   .updateOne(todo.withUpdatedDeadline(deadline))
@@ -130,16 +119,18 @@ object Controller {
           }
 
         private def updateAllFields(
-            id: String,
-            payload: request.Todo.Update.AllFields
+            id: String
+          )(
+            description: String,
+            deadline: String
           ): F[Response[F]] =
           withIdPrompt(id) { id =>
-            withDeadlinePrompt(payload.deadline) { deadline =>
+            withDeadlinePrompt(deadline) { deadline =>
               withReadOne(id) { todo =>
                 boundary
                   .updateOne(
                     todo
-                      .withUpdatedDescription(payload.description)
+                      .withUpdatedDescription(description)
                       .withUpdatedDeadline(deadline)
                   )
                   .map(response.Todo(pattern))
@@ -189,10 +180,7 @@ object Controller {
           )(
             onValidId: TodoId => F[Response[F]]
           ): F[Response[F]] =
-          id.pipe(toId) match {
-            case Right(id)   => onValidId(id)
-            case Left(error) => BadRequest(error)
-          }
+          toId(id).fold(BadRequest(_), onValidId)
 
         private def toId(userInput: String): Either[String, TodoId] =
           parse(userInput).leftMap(_.getMessage)
@@ -204,10 +192,7 @@ object Controller {
           ): F[Response[F]] =
           boundary
             .readOneById(id)
-            .flatMap {
-              case Some(todo) => onFound(todo)
-              case None       => displayNoTodosFoundMessage
-            }
+            .flatMap(_.fold(displayNoTodosFoundMessage)(onFound))
 
         private val displayNoTodosFoundMessage: F[Response[F]] =
           NotFound("No todos found!")
@@ -232,12 +217,31 @@ object Controller {
           jsonOf
       }
 
-      sealed abstract class Update extends Product with Serializable
+      sealed abstract class Update extends Product with Serializable {
+        import Update._
+
+        final def fold[B](
+            ifDescription: String => B,
+            ifDeadline: String => B,
+            ifAllFields: (String, String) => B
+          ): B =
+          this match {
+            case Description(description) =>
+              ifDescription(description)
+
+            case Deadline(deadline) =>
+              ifDeadline(deadline)
+
+            case AllFields(description, deadline) =>
+              ifAllFields(description, deadline)
+          }
+      }
 
       object Update {
         final case class Description(description: String) extends Update
         final case class Deadline(deadline: String) extends Update
         final type AllFields = Create
+        final val AllFields = Create
 
         implicit val decoder: Decoder[Update] =
           NonEmptyChain[Decoder[Update]](
