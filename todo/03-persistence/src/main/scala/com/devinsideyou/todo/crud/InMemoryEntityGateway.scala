@@ -3,7 +3,7 @@ package todo
 package crud
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 import cats.effect.concurrent.Ref
 
@@ -12,7 +12,7 @@ object InMemoryEntityGateway {
       state: Ref[F, Vector[Todo.Existing[Int]]]
     ): EntityGateway[F, Int] =
     new EntityGateway[F, Int] {
-      private val statement: Statement[F] =
+      private val statement: Statement[F, Int] =
         Statement.dsl(state)
 
       override def writeMany(

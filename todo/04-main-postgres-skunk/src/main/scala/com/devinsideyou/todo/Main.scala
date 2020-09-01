@@ -3,8 +3,6 @@ package todo
 
 import scala.concurrent._
 
-import cats.effect._
-
 import natchez.Trace.Implicits.noop
 
 object Main extends App {

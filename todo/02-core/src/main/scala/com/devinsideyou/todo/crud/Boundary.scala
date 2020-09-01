@@ -3,7 +3,7 @@ package todo
 package crud
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 trait Boundary[F[_], TodoId] {
   def createOne(todo: Todo.Data): F[Todo.Existing[TodoId]]

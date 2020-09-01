@@ -18,10 +18,10 @@ object Dependencies {
   case object dev {
     case object zio {
       val zio =
-        "dev.zio" %% "zio" % "1.0.1"
+        "dev.zio" %% "zio" % "1.0.3"
 
       val `zio-interop-cats` =
-        "dev.zio" %% "zio-interop-cats" % "2.1.4.0"
+        "dev.zio" %% "zio-interop-cats" % "2.2.0.1"
     }
   }
 
@@ -36,7 +36,7 @@ object Dependencies {
 
     case object monix {
       val `monix-eval` =
-        "io.monix" %% "monix-eval" % "3.2.2"
+        "io.monix" %% "monix-eval" % "3.3.0"
     }
   }
 
@@ -57,17 +57,17 @@ object Dependencies {
         dependency("dsl")
 
       private def dependency(artifact: String): ModuleID =
-        "org.http4s" %% s"http4s-$artifact" % "0.21.7"
+        "org.http4s" %% s"http4s-$artifact" % "0.21.13"
     }
 
     case object scalacheck {
       val scalacheck =
-        "org.scalacheck" %% "scalacheck" % "1.14.3"
+        "org.scalacheck" %% "scalacheck" % "1.15.1"
     }
 
     case object scalatest {
       val scalatest =
-        "org.scalatest" %% "scalatest" % "3.2.2"
+        "org.scalatest" %% "scalatest" % "3.2.3"
     }
 
     case object scalatestplus {
@@ -82,21 +82,21 @@ object Dependencies {
 
     case object tpolecat {
       val `skunk-core` =
-        "org.tpolecat" %% "skunk-core" % "0.0.18"
+        "org.tpolecat" %% "skunk-core" % "0.0.21"
     }
 
     case object typelevel {
       val `cats-core` =
-        "org.typelevel" %% "cats-core" % "2.1.1"
+        "org.typelevel" %% "cats-core" % "2.3.0"
 
       val `cats-effect` =
-        "org.typelevel" %% "cats-effect" % "2.1.4"
+        "org.typelevel" %% "cats-effect" % "2.2.0"
 
       val `discipline-scalatest` =
-        "org.typelevel" %% "discipline-scalatest" % "2.0.1"
+        "org.typelevel" %% "discipline-scalatest" % "2.1.0"
 
       val `kind-projector` =
-        "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full
+        "org.typelevel" %% "kind-projector" % "0.11.1" cross CrossVersion.full
     }
   }
 }

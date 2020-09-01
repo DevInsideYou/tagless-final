@@ -8,8 +8,7 @@ sealed abstract class Todo[+TodoId] extends Product with Serializable {
   import Todo._
 
   final def fold[B](
-      ifExisting: (TodoId, Data) => B
-    )(
+      ifExisting: (TodoId, Data) => B,
       ifData: (String, LocalDateTime) => B
     ): B =
     this match {

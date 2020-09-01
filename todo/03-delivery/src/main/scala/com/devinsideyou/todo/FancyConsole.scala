@@ -2,7 +2,7 @@ package com.devinsideyou
 package todo
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 trait FancyConsole[F[_]] {
   def getStrLnTrimmedWithPrompt(prompt: String): F[String]

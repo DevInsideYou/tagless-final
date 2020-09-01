@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 
 import cats._
 import cats.data._
-import cats.implicits._
+import cats.syntax.all._
 
 trait Controller[F[_]] {
   def program: F[Unit]

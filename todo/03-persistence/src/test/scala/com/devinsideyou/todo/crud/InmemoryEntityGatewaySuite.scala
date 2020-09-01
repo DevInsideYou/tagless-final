@@ -7,7 +7,7 @@ import cats.effect.concurrent.Ref
 
 final class InMemoryEntityGatewaySuite extends TestSuite {
   private type F[+A] = effect.IO[A]
-  private val F = effect.IO
+  // private val F = effect.IO
 
   test("what's written should be read") {
     forAll { (data1: Todo.Data, data2: Todo.Data) =>
@@ -31,8 +31,8 @@ final class InMemoryEntityGatewaySuite extends TestSuite {
       val program: F[Unit] =
         for {
           entityGateway <- makeEntityGateway(existing = Vector.empty)
-          written <- entityGateway.writeMany(Vector(existing))
-          read <- entityGateway.readAll
+          _ <- entityGateway.writeMany(Vector(existing))
+          _ <- entityGateway.readAll
         } yield ()
 
       noException should be thrownBy program

@@ -2,7 +2,7 @@ import Dependencies.{ io, _ }
 import Util._
 
 ThisBuild / organization := "com.devinsideyou"
-ThisBuild / scalaVersion := "2.13.3"
+ThisBuild / scalaVersion := "2.13.4"
 ThisBuild / version := "0.0.1-SNAPSHOT"
 
 ThisBuild / scalacOptions ++= Seq(
@@ -10,6 +10,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-feature",
   "-language:_",
   "-unchecked",
+  "-Wunused:_",
   "-Wvalue-discard",
   "-Xfatal-warnings",
   "-Ymacro-annotations"
@@ -35,7 +36,7 @@ lazy val `todo` =
 lazy val util =
   project
     .in(file("00-util"))
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
         org.typelevel.`cats-core`
@@ -46,13 +47,13 @@ lazy val domain =
   project
     .in(file("01-domain"))
     .dependsOn(util % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
 
 lazy val core =
   project
     .in(file("02-core"))
     .dependsOn(domain % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
         org.typelevel.`cats-core`
@@ -70,7 +71,7 @@ lazy val delivery =
   project
     .in(file("03-delivery"))
     .dependsOn(core % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
         org.typelevel.`cats-effect`
@@ -81,7 +82,7 @@ lazy val `delivery-http-http4s` =
   project
     .in(file("03-delivery-http-http4s"))
     .dependsOn(core % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
         io.circe.`circe-generic`,
@@ -96,7 +97,7 @@ lazy val persistence =
   project
     .in(file("03-persistence"))
     .dependsOn(core % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
         org.typelevel.`cats-effect`
@@ -107,7 +108,7 @@ lazy val `persistence-postgres-skunk` =
   project
     .in(file("03-persistence-postgres-skunk"))
     .dependsOn(core % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
         org.tpolecat.`skunk-core`,
@@ -120,7 +121,7 @@ lazy val main =
     .in(file("04-main"))
     .dependsOn(delivery % Cctt)
     .dependsOn(persistence % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(libraryDependencies ++= effects)
 
 lazy val `main-http-http4s` =
@@ -128,7 +129,7 @@ lazy val `main-http-http4s` =
     .in(file("04-main-http-http4s"))
     .dependsOn(`delivery-http-http4s` % Cctt)
     .dependsOn(persistence % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(libraryDependencies ++= effects)
     .settings(
       libraryDependencies ++= Seq(
@@ -141,7 +142,7 @@ lazy val `main-postgres-skunk` =
     .in(file("04-main-postgres-skunk"))
     .dependsOn(delivery % Cctt)
     .dependsOn(`persistence-postgres-skunk` % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(libraryDependencies ++= effects)
 
 lazy val `main-http-http4s-postgres-skunk` =
@@ -149,7 +150,7 @@ lazy val `main-http-http4s-postgres-skunk` =
     .in(file("04-main-http-http4s-postgres-skunk"))
     .dependsOn(`delivery-http-http4s` % Cctt)
     .dependsOn(`persistence-postgres-skunk` % Cctt)
-    .settings(commonSettings: _*)
+    .settings(commonSettings)
     .settings(libraryDependencies ++= effects)
     .settings(
       libraryDependencies ++= Seq(

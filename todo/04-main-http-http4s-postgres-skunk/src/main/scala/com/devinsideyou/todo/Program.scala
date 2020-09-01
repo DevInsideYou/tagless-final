@@ -5,8 +5,7 @@ import java.time.format.DateTimeFormatter
 
 import scala.concurrent._
 
-import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 import cats.effect._
 

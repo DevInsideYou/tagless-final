@@ -3,8 +3,6 @@ package todo
 
 import scala.concurrent._
 
-import cats.effect._
-
 object Main extends App {
   val executionContext: ExecutionContext =
     ExecutionContext.global

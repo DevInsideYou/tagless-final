@@ -4,7 +4,7 @@ package todo
 import java.time.format.DateTimeFormatter
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 object Program {
   def dsl[F[_]: effect.Sync]: F[Unit] =

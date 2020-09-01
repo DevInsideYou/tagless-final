@@ -5,7 +5,7 @@ package crud
 import java.util.UUID
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 object PostgresEntityGateway {
   def dsl[F[_]: effect.Sync](

@@ -2,7 +2,6 @@ package com.devinsideyou
 package todo
 
 import cats._
-import cats.implicits._
 
 trait Console[F[_]] {
   def getStrLnWithPrompt(prompt: String): F[String]

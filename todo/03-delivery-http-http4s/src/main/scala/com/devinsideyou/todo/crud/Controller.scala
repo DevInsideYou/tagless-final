@@ -9,7 +9,7 @@ import scala.util.chaining._
 
 import cats._
 import cats.data._
-import cats.implicits._
+import cats.syntax.all._
 
 import io.circe._
 import io.circe.syntax._
@@ -79,7 +79,7 @@ object Controller {
           Either
             .catchNonFatal(LocalDateTime.parse(trimmedInput, formatter))
             .leftMap { _ =>
-              s"$trimmedInput does not match the required format $DeadlinePromptPattern"
+              s"$trimmedInput does not match the required format $DeadlinePromptPattern."
             }
         }
 

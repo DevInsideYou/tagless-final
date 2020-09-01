@@ -3,23 +3,23 @@ package todo
 package crud
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 import cats.effect.concurrent.Ref
 
-trait Statement[F[_]] {
-  def insertOne(data: Todo.Data): F[Todo.Existing[Int]]
-  def updateOne(todo: Todo.Existing[Int]): F[Todo.Existing[Int]]
-  def selectAll: F[Vector[Todo.Existing[Int]]]
-  def deleteMany(todos: Vector[Todo.Existing[Int]]): F[Unit]
+trait Statement[F[_], TodoId] {
+  def insertOne(data: Todo.Data): F[Todo.Existing[TodoId]]
+  def updateOne(todo: Todo.Existing[TodoId]): F[Todo.Existing[TodoId]]
+  def selectAll: F[Vector[Todo.Existing[TodoId]]]
+  def deleteMany(todos: Vector[Todo.Existing[TodoId]]): F[Unit]
   def deleteAll: F[Unit]
 }
 
 object Statement {
   def dsl[F[_]: MonadError[*[_], Throwable]](
       state: Ref[F, Vector[Todo.Existing[Int]]]
-    ): Statement[F] =
-    new Statement[F] {
+    ): Statement[F, Int] =
+    new Statement[F, Int] {
       override val selectAll: F[Vector[Todo.Existing[Int]]] =
         state.get
 

@@ -5,7 +5,7 @@ package crud
 import java.time.format.DateTimeFormatter
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 
 object DependencyGraph {
   def dsl[F[_]: effect.Sync](
