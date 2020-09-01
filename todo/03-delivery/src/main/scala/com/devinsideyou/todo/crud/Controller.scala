@@ -2,6 +2,8 @@ package com.devinsideyou
 package todo
 package crud
 
+import scala.util.control.NonFatal
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -14,7 +16,7 @@ trait Controller[F[_]] {
 }
 
 object Controller {
-  def dsl[F[_]: Monad, TodoId](
+  def dsl[F[_]: MonadError[*[_], Throwable], TodoId](
       pattern: DateTimeFormatter,
       boundary: Boundary[F, TodoId],
       console: FancyConsole[F],
@@ -23,7 +25,7 @@ object Controller {
       parse: Parse[String, TodoId]
     ): Controller[F] =
     new Controller[F] {
-      override val program: F[Unit] = {
+      override def program: F[Unit] = {
         val colors: Vector[String] =
           Vector(
             // scala.Console.BLACK,
@@ -82,14 +84,18 @@ object Controller {
             case Exit() => exit.as(false)
             case _      => true.pure[F]
           }
+          .handleErrorWith {
+            case NonFatal(throwable) =>
+              console.putErrLn(throwable.getMessage).as(true)
+          }
           .iterateWhile(identity)
           .void
       }
 
-      private val descriptionPrompt: F[String] =
+      private def descriptionPrompt: F[String] =
         console.getStrLnTrimmedWithPrompt("Please enter a description:")
 
-      private val create: F[Unit] =
+      private def create: F[Unit] =
         descriptionPrompt.flatMap { description =>
           withDeadlinePrompt { deadline =>
             boundary.createOne(Todo.Data(description, deadline)) >>
@@ -104,7 +110,7 @@ object Controller {
           .map(toLocalDateTime)
           .flatMap(_.fold(console.putErrLn, onSuccess))
 
-      private val deadlinePrompt: F[String] =
+      private def deadlinePrompt: F[String] =
         console.getStrLnTrimmedWithPrompt(
           s"Please enter a deadline in the following format $DeadlinePromptFormat:"
         )
@@ -125,14 +131,14 @@ object Controller {
             val renderedInput: String =
               inColor(trimmedInput)(scala.Console.YELLOW)
 
-            s"\n$renderedInput does not match the required format $DeadlinePromptFormat.${scala.Console.RESET}"
+            s"\n$renderedInput does not match the required format $DeadlinePromptFormat."
           }
       }
 
-      private val idPrompt: F[String] =
+      private def idPrompt: F[String] =
         console.getStrLnTrimmedWithPrompt("Please enter the id:")
 
-      private val delete: F[Unit] =
+      private def delete: F[Unit] =
         withIdPrompt { id =>
           withReadOne(id) { todo =>
             boundary.deleteOne(todo) >>
@@ -155,14 +161,14 @@ object Controller {
           .readOneById(id)
           .flatMap(_.fold(displayNoTodosFoundMessage)(onFound))
 
-      private val displayNoTodosFoundMessage: F[Unit] =
+      private def displayNoTodosFoundMessage: F[Unit] =
         console.putWarning("\nNo todos found!")
 
-      private val deleteAll: F[Unit] =
+      private def deleteAll: F[Unit] =
         boundary.deleteAll >>
           console.putSuccess("Successfully deleted all todos.")
 
-      private val showAll: F[Unit] =
+      private def showAll: F[Unit] =
         boundary
           .readAll
           .map(NonEmptyVector.fromVector)
@@ -197,20 +203,20 @@ object Controller {
         s"$renderedId $renderedDescription is due on $renderedDeadline."
       }
 
-      private val searchByDescription: F[Unit] =
+      private def searchByDescription: F[Unit] =
         descriptionPrompt
           .flatMap(boundary.readManyByPartialDescription)
           .map(NonEmptyVector.fromVector)
           .flatMap(_.fold(displayNoTodosFoundMessage)(displayOneOrMany))
 
-      private val searchById: F[Unit] =
+      private def searchById: F[Unit] =
         withIdPrompt { id =>
           withReadOne(id) { todo =>
             displayOneOrMany(NonEmptyVector.of(todo))
           }
         }
 
-      private val updateDescription: F[Unit] =
+      private def updateDescription: F[Unit] =
         withIdPrompt { id =>
           withReadOne(id) { todo =>
             descriptionPrompt.flatMap { description =>
@@ -220,7 +226,7 @@ object Controller {
           }
         }
 
-      private val updateDeadline: F[Unit] =
+      private def updateDeadline: F[Unit] =
         withIdPrompt { id =>
           withReadOne(id) { todo =>
             withDeadlinePrompt { deadline =>
@@ -230,7 +236,7 @@ object Controller {
           }
         }
 
-      private val exit: F[Unit] =
+      private def exit: F[Unit] =
         console.putStrLn("\nUntil next time!\n")
     }
 

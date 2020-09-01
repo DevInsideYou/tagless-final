@@ -62,7 +62,7 @@ object Boundary {
         else
           gateway.readManyByPartialDescription(partialDescription.trim)
 
-      override val readAll: F[Vector[Todo.Existing[TodoId]]] =
+      override def readAll: F[Vector[Todo.Existing[TodoId]]] =
         gateway.readAll
 
       override def updateOne(
@@ -81,7 +81,7 @@ object Boundary {
       override def deleteMany(todos: Vector[Todo.Existing[TodoId]]): F[Unit] =
         gateway.deleteMany(todos)
 
-      override val deleteAll: F[Unit] =
+      override def deleteAll: F[Unit] =
         gateway.deleteAll
     }
 }

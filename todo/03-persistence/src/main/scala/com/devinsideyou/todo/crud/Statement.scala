@@ -16,7 +16,7 @@ trait Statement[F[_]] {
 }
 
 object Statement {
-  def dsl[F[_]: Functor: FlatMap](
+  def dsl[F[_]: MonadError[*[_], Throwable]](
       state: Ref[F, Vector[Todo.Existing[Int]]]
     ): Statement[F] =
     new Statement[F] {
@@ -34,8 +34,17 @@ object Statement {
           }
 
       override def updateOne(todo: Todo.Existing[Int]): F[Todo.Existing[Int]] =
-        state.modify { s =>
-          (s.filterNot(_.id === todo.id) :+ todo) -> todo
+        state.get.flatMap { s =>
+          if (s.exists(_.id === todo.id))
+            state.modify { s =>
+              (s.filterNot(_.id === todo.id) :+ todo) -> todo
+            }
+          else
+            F.raiseError(
+              new RuntimeException(
+                s"Failed to update todo: ${todo.id} because it didn't exist."
+              )
+            )
         }
 
       override def deleteMany(todos: Vector[Todo.Existing[Int]]): F[Unit] =

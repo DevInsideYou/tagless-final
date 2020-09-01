@@ -1,5 +1,4 @@
-import Dependencies._
-import Dependencies.io
+import Dependencies.{ io, _ }
 import Util._
 
 ThisBuild / organization := "com.devinsideyou"
@@ -46,6 +45,7 @@ lazy val util =
 lazy val domain =
   project
     .in(file("01-domain"))
+    .dependsOn(util % Cctt)
     .settings(commonSettings: _*)
 
 lazy val core =
@@ -69,7 +69,6 @@ lazy val core =
 lazy val delivery =
   project
     .in(file("03-delivery"))
-    .dependsOn(util % Cctt)
     .dependsOn(core % Cctt)
     .settings(commonSettings: _*)
     .settings(
@@ -81,7 +80,6 @@ lazy val delivery =
 lazy val `delivery-http-http4s` =
   project
     .in(file("03-delivery-http-http4s"))
-    .dependsOn(util % Cctt)
     .dependsOn(core % Cctt)
     .settings(commonSettings: _*)
     .settings(
@@ -164,6 +162,13 @@ lazy val commonSettings = Seq(
   addCompilerPlugin(org.augustjune.`context-applied`),
   addCompilerPlugin(org.typelevel.`kind-projector`),
   update / evictionWarningOptions := EvictionWarningOptions.empty,
+  libraryDependencies ++= Seq(
+    com.github.alexarchambault.`scalacheck-shapeless_1.14`,
+    org.scalacheck.scalacheck,
+    org.scalatest.scalatest,
+    org.scalatestplus.`scalacheck-1-14`,
+    org.typelevel.`discipline-scalatest`
+  ).map(_ % Test),
   Compile / console / scalacOptions --= Seq(
     "-Wunused:_",
     "-Xfatal-warnings"

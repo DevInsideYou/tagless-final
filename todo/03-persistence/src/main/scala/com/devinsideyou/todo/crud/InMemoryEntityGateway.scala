@@ -8,7 +8,7 @@ import cats.implicits._
 import cats.effect.concurrent.Ref
 
 object InMemoryEntityGateway {
-  def dsl[F[_]: Monad](
+  def dsl[F[_]: MonadError[*[_], Throwable]](
       state: Ref[F, Vector[Todo.Existing[Int]]]
     ): EntityGateway[F, Int] =
     new EntityGateway[F, Int] {
