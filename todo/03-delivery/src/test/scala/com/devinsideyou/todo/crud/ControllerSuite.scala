@@ -67,7 +67,7 @@ final class ControllerSuite extends TestSuite {
         input = List("c", description, deadline),
         expectedOutput = Vector.empty,
         expectedErrors = Vector(
-          s"\n${YELLOW}$deadline${RESET} does not match the required format ${MAGENTA}yyyy-M-d H:m${RESET}."
+          s"\n${YELLOW}${deadline.trim}${RESET} does not match the required format ${MAGENTA}yyyy-M-d H:m${RESET}."
         )
       )
     }
